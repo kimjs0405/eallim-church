@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>엘림교회</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header id="header" class="header">
+        <nav class="nav container">
+            <div class="nav-brand">
+                <a href="index.html">
+                    <img src="logo.png" alt="엘림교회 로고">
+                    <span>엘림교회</span>
+                </a>
+            </div>
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item"><a href="index.html" class="nav-link">홈</a></li>
+                <li class="nav-item"><a href="about.html" class="nav-link">교회소개</a></li>
+                <li class="nav-item"><a href="#worship" class="nav-link">예배안내</a></li>
+                <li class="nav-item"><a href="#programs" class="nav-link">교회활동</a></li>
+                <li class="nav-item"><a href="#vision" class="nav-link">비전</a></li>
+                <li class="nav-item"><a href="#news" class="nav-link">공지사항</a></li>
+                <li class="nav-item"><a href="board.html" class="nav-link">게시판</a></li>
+                <li class="nav-item"><a href="sermons.html" class="nav-link">설교영상</a></li>
+                <li class="nav-item"><a href="contact.html" class="nav-link">오시는길</a></li>
+            </ul>
+            <div class="nav-right">
+                <a href="admin.html" class="login-btn">
+                    <span class="login-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </span>
+                    <span class="login-text">로그인</span>
+                </a>
+                <div class="nav-toggle" id="nav-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 히어로 섹션 -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">God bless you!!</h1>
+            <p class="hero-subtitle">평안하여 든든히 서가는 교회</p>
+            <p class="hero-verse">그리하여 온 유대와 갈릴리와 사마리아 교회가 평안하여 든든히 서 가고 주를 경외함과 성령의 위로로 진행하여 수가 더 많아지니라<br><span style="font-size: 0.9rem;">사도행전 9장 31절</span></p>
+        </div>
+    </section>
+
+    <!-- 메인 카드 섹션 -->
+    <section class="main-cards-section">
+        <div class="container">
+            <div class="main-cards-grid">
+                <a href="sermons.html" class="main-card main-card-blue">
+                    <div class="main-card-icon icon-sermon"></div>
+                    <div class="main-card-content">
+                        <h3>주일오전예배</h3>
+                        <p>신정환 담임목사 설교</p>
+                    </div>
+                </a>
+                <a href="#worship" class="main-card main-card-gray">
+                    <div class="main-card-icon icon-worship"></div>
+                    <div class="main-card-content">
+                        <h3>예배안내</h3>
+                        <p>SERVICE TIMES</p>
+                    </div>
+                </a>
+                <a href="#vision" class="main-card main-card-green">
+                    <div class="main-card-icon icon-vision"></div>
+                    <div class="main-card-content">
+                        <h3>교회비전</h3>
+                        <p>ELIM VISION</p>
+                    </div>
+                </a>
+                <a href="#programs" class="main-card main-card-teal">
+                    <div class="main-card-icon icon-minister"></div>
+                    <div class="main-card-content">
+                        <h3>섬기는 이들</h3>
+                        <p>MINISTER</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 게시판 & 앨범 섹션 -->
+    <section class="board-section">
+        <div class="container">
+            <div class="board-grid">
+                <!-- 주보광고 -->
+                <div class="board-item">
+                    <h3 class="board-title">주보광고</h3>
+                    <div class="board-list" id="bulletinList">
+                        <div class="loading-message">
+                            <p>주보를 불러오는 중...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 행사앨범 -->
+                <div class="board-item">
+                    <h3 class="board-title">행사앨범</h3>
+                    <div class="album-grid" id="albumGrid">
+                        <div class="loading-message">
+                            <p>앨범을 불러오는 중...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 예배 안내 -->
+    <section id="worship" class="section bg-light">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">예배 안내</h2>
+                <div class="section-line"></div>
+                <p class="section-subtitle">하나님께 함께 예배드립니다</p>
+            </div>
+            <div class="worship-grid">
+                <div class="worship-card">
+                    <h3>주일 예배</h3>
+                    <p class="worship-time">오전 11:00</p>
+                    <div class="worship-details">
+                        <p class="worship-location">📍 본당</p>
+                        <p>모든 성도가 함께 예배드리는 시간</p>
+                    </div>
+                </div>
+                <div class="worship-card">
+                    <h3>오전 예배</h3>
+                    <p class="worship-time">오전 9:00</p>
+                    <div class="worship-details">
+                        <p class="worship-location">📍 본당</p>
+                        <p>조용한 분위기에서 드리는 예배</p>
+                    </div>
+                </div>
+                <div class="worship-card">
+                    <h3>수요 예배</h3>
+                    <p class="worship-time">오후 7:30</p>
+                    <div class="worship-details">
+                        <p class="worship-location">📍 본당</p>
+                        <p>중간주의 힘을 받는 시간</p>
+                    </div>
+                </div>
+                <div class="worship-card">
+                    <h3>금요 기도회</h3>
+                    <p class="worship-time">오후 7:30</p>
+                    <div class="worship-details">
+                        <p class="worship-location">📍 본당</p>
+                        <p>함께 기도하며 주님께 나아가는 시간</p>
+                    </div>
+                </div>
+            </div>
+            <div class="worship-notice">
+                <h3>📌 예배 참석 안내</h3>
+                <p>예배는 마스크 착용 없이 참석 가능합니다. 하나님의 임재 안에서 자유롭게 예배드리시길 바랍니다. 처음 오시는 분들은 교회 정문에서 안내를 받으실 수 있습니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 교회 활동 -->
+    <section id="programs" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">교회 활동</h2>
+                <div class="section-line"></div>
+                <p class="section-subtitle">각 성도들이 자신의 은사를 발휘하며 함께 성장하는 시간</p>
+            </div>
+            <div class="programs-grid">
+                <div class="program-card">
+                    <div class="program-icon">👨‍👩‍👧‍👦</div>
+                    <h3>주일학교</h3>
+                    <p>아이들이 하나님의 말씀을 배우고 성장하는 시간</p>
+                    <div class="program-info">
+                        <p>⏰ 주일 오전 11:00</p>
+                        <p>👥 어린이 및 청소년</p>
+                    </div>
+                </div>
+                <div class="program-card">
+                    <div class="program-icon">🙌</div>
+                    <h3>청년부</h3>
+                    <p>젊은 세대가 함께 모여 예배하고 교제하는 모임</p>
+                    <div class="program-info">
+                        <p>⏰ 주일 오후 2:00</p>
+                        <p>👥 청년 (18-30세)</p>
+                    </div>
+                </div>
+                <div class="program-card">
+                    <div class="program-icon">💝</div>
+                    <h3>여전도회</h3>
+                    <p>여성 성도들이 함께 기도하고 봉사하는 모임</p>
+                    <div class="program-info">
+                        <p>⏰ 목요일 오전 10:00</p>
+                        <p>👥 여성 성도</p>
+                    </div>
+                </div>
+                <div class="program-card">
+                    <div class="program-icon">🤝</div>
+                    <h3>남전도회</h3>
+                    <p>남성 성도들이 함께 기도하고 교제하는 모임</p>
+                    <div class="program-info">
+                        <p>⏰ 토요일 오전 6:00</p>
+                        <p>👥 남성 성도</p>
+                    </div>
+                </div>
+                <div class="program-card">
+                    <div class="program-icon">🎵</div>
+                    <h3>찬양팀</h3>
+                    <p>음악을 통해 하나님을 찬양하는 팀</p>
+                    <div class="program-info">
+                        <p>⏰ 매주 연습</p>
+                        <p>👥 음악에 관심 있는 성도</p>
+                    </div>
+                </div>
+                <div class="program-card">
+                    <div class="program-icon">🌍</div>
+                    <h3>선교부</h3>
+                    <p>세상에 복음을 전하는 사역에 동참</p>
+                    <div class="program-info">
+                        <p>⏰ 월 1회 모임</p>
+                        <p>👥 전체 성도</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 비전 -->
+    <section id="vision" class="section vision-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title white">우리의 사명과 비전</h2>
+                <div class="section-line white"></div>
+                <p class="section-subtitle white">하나님께서 우리에게 주신 사명을 감당하며 함께 성장합니다</p>
+            </div>
+            <div class="vision-grid">
+                <div class="vision-card">
+                    <div class="vision-icon">🎯</div>
+                    <h3>사명</h3>
+                    <p>하나님의 말씀으로 사람들을 제자로 세워 세상에 복음을 전합니다.</p>
+                </div>
+                <div class="vision-card">
+                    <div class="vision-icon">✨</div>
+                    <h3>비전</h3>
+                    <p>하나님을 사랑하고 사람을 섬기는 건강한 공동체를 세워갑니다.</p>
+                </div>
+                <div class="vision-card">
+                    <div class="vision-icon">💎</div>
+                    <h3>핵심 가치</h3>
+                    <p>말씀, 예배, 교제, 선교를 통해 하나님 나라를 확장합니다.</p>
+                </div>
+            </div>
+            <div class="vision-values">
+                <h3>엘림교회를 이루어가는 가치</h3>
+                <div class="values-grid">
+                    <div class="value-box">
+                        <h4>📖 말씀 중심</h4>
+                        <p>하나님의 말씀이 우리의 삶의 기준이 되고, 모든 결정의 근거가 됩니다.</p>
+                    </div>
+                    <div class="value-box">
+                        <h4>🙏 예배 중심</h4>
+                        <p>삶 자체가 예배가 되도록 하나님을 향한 마음을 품고 살아갑니다.</p>
+                    </div>
+                    <div class="value-box">
+                        <h4>❤️ 사랑 중심</h4>
+                        <p>서로를 진심으로 사랑하고 배려하며 공동체를 세워갑니다.</p>
+                    </div>
+                    <div class="value-box">
+                        <h4>🌍 선교 중심</h4>
+                        <p>지역과 세상에 하나님의 사랑을 전하며 부흥을 추구합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 공지사항 -->
+    <section id="news" class="section bg-light">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">공지사항</h2>
+                <div class="section-line"></div>
+                <p class="section-subtitle">교회 소식과 중요한 공지사항을 확인하세요</p>
+            </div>
+            <div class="news-grid">
+                <div class="news-card">
+                    <div class="news-header">
+                        <span class="news-date">2024.03.24</span>
+                        <span class="news-category">이벤트</span>
+                    </div>
+                    <h3>2024년 춘계 체육대회 안내</h3>
+                    <p>온 교회가 함께하는 즐거운 체육대회입니다. 많은 참석 부탁드립니다.</p>
+                </div>
+                <div class="news-card">
+                    <div class="news-header">
+                        <span class="news-date">2024.03.17</span>
+                        <span class="news-category">예배</span>
+                    </div>
+                    <h3>부활절 특별 예배 안내</h3>
+                    <p>4월 9일 부활절 특별 예배에 초대합니다. 기념품도 준비되어 있습니다.</p>
+                </div>
+                <div class="news-card">
+                    <div class="news-header">
+                        <span class="news-date">2024.03.10</span>
+                        <span class="news-category">교회활동</span>
+                    </div>
+                    <h3>2024년 상반기 신입교인 환영모임</h3>
+                    <p>새로 오신 교인들을 환영하는 모임이 있습니다. 많은 참석 부탁드립니다.</p>
+                </div>
+                <div class="news-card">
+                    <div class="news-header">
+                        <span class="news-date">2024.03.03</span>
+                        <span class="news-category">청년부</span>
+                    </div>
+                    <h3>청년부 하이킹 모임</h3>
+                    <p>청년부에서 봄 소풍을 떠나요! 많은 청년들의 참여를 기다립니다.</p>
+                </div>
+            </div>
+            <div class="section-footer">
+                <button class="btn btn-primary">더 많은 소식 보기</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-item">
+                    <h3>엘림교회</h3>
+                    <p>하나님의 말씀으로 세워지는 공동체</p>
+                </div>
+                <div class="footer-item">
+                    <h4>빠른 링크</h4>
+                    <ul>
+                        <li><a href="about.html">교회소개</a></li>
+                        <li><a href="#worship">예배안내</a></li>
+                        <li><a href="#programs">교회활동</a></li>
+                        <li><a href="#vision">비전</a></li>
+                    </ul>
+                </div>
+                <div class="footer-item">
+                    <h4>이용안내</h4>
+                    <ul>
+                        <li><a href="contact.html">오시는길</a></li>
+                        <li><a href="board.html">게시판</a></li>
+                        <li><a href="sermons.html">설교영상</a></li>
+                        <li><a href="#">온라인 봉사</a></li>
+                        <li><a href="#">자료실</a></li>
+                        <li><a href="#">사역기관</a></li>
+                    </ul>
+                </div>
+                <div class="footer-item">
+                    <h4>연락처</h4>
+                    <ul class="footer-contact">
+                        <li>📞 02-866-4623</li>
+                        <li>📧 info@elimchurch.org</li>
+                        <li>📍 서울특별시 영등포구 여의도동</li>
+                        <li>⏰ 주일 오전 11시 예배</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 엘림교회. All rights reserved.</p>
+                <p>하나님의 영광을 따라가는 교회</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 주보 상세 모달 -->
+    <div id="bulletinModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close" onclick="closeBulletinModal()">&times;</span>
+            <div id="bulletinModalContent"></div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+

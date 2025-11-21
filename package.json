@@ -1,0 +1,21 @@
+{
+  "name": "elim-church",
+  "version": "1.0.0",
+  "description": "엘림교회 웹사이트",
+  "main": "index.html",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build step required'"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  },
+  "keywords": [
+    "church",
+    "website"
+  ],
+  "author": "",
+  "license": "MIT"
+}
+

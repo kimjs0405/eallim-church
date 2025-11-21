@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>설교영상 - 엘림교회</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header id="header" class="header">
+        <nav class="nav container">
+            <div class="nav-brand"><a href="index.html" style="text-decoration: none; color: inherit;">엘림교회</a></div>
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item"><a href="index.html" class="nav-link">홈</a></li>
+                <li class="nav-item"><a href="about.html" class="nav-link">교회소개</a></li>
+                <li class="nav-item"><a href="index.html#worship" class="nav-link">예배안내</a></li>
+                <li class="nav-item"><a href="index.html#programs" class="nav-link">교회활동</a></li>
+                <li class="nav-item"><a href="index.html#vision" class="nav-link">비전</a></li>
+                <li class="nav-item"><a href="index.html#news" class="nav-link">공지사항</a></li>
+                <li class="nav-item"><a href="board.html" class="nav-link">게시판</a></li>
+                <li class="nav-item"><a href="sermons.html" class="nav-link">설교영상</a></li>
+                <li class="nav-item"><a href="contact.html" class="nav-link">오시는길</a></li>
+            </ul>
+            <div class="nav-toggle" id="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 설교영상 -->
+    <section id="sermons" class="section" style="margin-top: 70px;">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">설교영상</h2>
+                <div class="section-line"></div>
+                <p class="section-subtitle">하나님의 말씀을 함께 나눕니다</p>
+            </div>
+            
+            <div class="sermon-layout">
+                <!-- 좌측: 최근 영상 -->
+                <div class="sermon-latest">
+                    <h3 class="sermon-side-title">최근 설교</h3>
+                    <div class="sermon-video-container" id="latest-video">
+                        <div class="loading-message" id="sermons-loading">
+                            <p>📹 영상을 불러오는 중...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 우측: 버튼들 -->
+                <div class="sermon-buttons">
+                    <!-- 유튜브 바로가기 -->
+                    <a href="https://www.youtube.com/@SS_Samsung_realty" target="_blank" class="sermon-button sermon-yt-button">
+                        <div class="sermon-button-icon">📺</div>
+                        <h4>YouTube 채널</h4>
+                        <p>더 많은 설교 영상을 보려면<br>YouTube 채널을 방문해주세요</p>
+                    </a>
+                    
+                    <!-- 담임목사 인삿말 -->
+                    <a href="#" class="sermon-button sermon-greeting-button" onclick="alert('담임목사님 인삿말이 준비 중입니다.'); return false;">
+                        <div class="sermon-button-icon">👋</div>
+                        <h4>담임목사 인삿말</h4>
+                        <p>담임목사님의 따뜻한 인사말을<br>살펴보세요</p>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- 숨겨진 설정 (개발용) -->
+            <details class="sermon-config" id="sermon-config" style="margin-top: 40px; opacity: 0.3;">
+                <summary><small>⚙️ YouTube 채널 설정 (개발용)</small></summary>
+                <div style="margin-top: 20px;">
+                    <div class="config-input-group">
+                        <input type="text" id="youtube-channel-id" placeholder="채널 URL 또는 채널 ID" class="config-input">
+                        <button id="load-videos" class="btn btn-primary">영상 불러오기</button>
+                    </div>
+                    <div class="config-status" id="config-status"></div>
+                </div>
+            </details>
+        </div>
+    </section>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-item">
+                    <h3>엘림교회</h3>
+                    <p>하나님의 말씀으로 세워지는 공동체</p>
+                </div>
+                <div class="footer-item">
+                    <h4>빠른 링크</h4>
+                    <ul>
+                        <li><a href="about.html">교회소개</a></li>
+                        <li><a href="index.html#worship">예배안내</a></li>
+                        <li><a href="index.html#programs">교회활동</a></li>
+                        <li><a href="index.html#vision">비전</a></li>
+                    </ul>
+                </div>
+                <div class="footer-item">
+                    <h4>이용안내</h4>
+                    <ul>
+                        <li><a href="contact.html">오시는길</a></li>
+                        <li><a href="board.html">게시판</a></li>
+                        <li><a href="sermons.html">설교영상</a></li>
+                        <li><a href="#">사역기관</a></li>
+                    </ul>
+                </div>
+                <div class="footer-item">
+                    <h4>연락처</h4>
+                    <ul class="footer-contact">
+                        <li>📞 02-866-4623</li>
+                        <li>📧 info@elimchurch.org</li>
+                        <li>📍 서울특별시 영등포구 여의도동</li>
+                        <li>⏰ 주일 오전 11시 예배</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 엘림교회. All rights reserved.</p>
+                <p>하나님의 영광을 따라가는 교회</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

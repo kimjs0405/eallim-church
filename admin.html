@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>엘림교회 관리자 페이지</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            padding: 60px 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2C3E50;
+            margin-bottom: 40px;
+            font-size: 1.8rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .login-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-box p {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+        
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            max-width: 400px;
+            padding: 14px 16px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #2C5F8D;
+        }
+        
+        button {
+            background: #2C5F8D;
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s ease;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        button:hover {
+            background: #1E4263;
+        }
+        
+        .admin-menu {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .admin-menu.active {
+            display: block;
+        }
+        
+        .admin-section {
+            margin-bottom: 30px;
+            padding: 24px;
+            background: #f9f9f9;
+            border-left: 3px solid #2C5F8D;
+        }
+        
+        .admin-section h2 {
+            color: #2C3E50;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+        
+        textarea:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #2C5F8D;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .btn-small {
+            padding: 10px 24px;
+            font-size: 0.9rem;
+            width: auto;
+            max-width: none;
+        }
+        
+        .status {
+            padding: 12px 16px;
+            background: #d4edda;
+            color: #155724;
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #2C5F8D;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .back-link:hover {
+            color: #1E4263;
+        }
+        
+        /* 모달 스타일 */
+        .modal {
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal .close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #999;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+        }
+        
+        .modal .close:hover {
+            color: #333;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            .container {
+                padding: 40px 20px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            input[type="text"],
+            input[type="password"], 
+            button {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>엘림교회 관리자 페이지</h1>
+        
+        <div class="login-box" id="loginBox">
+            <p>관리자 로그인</p>
+            <input type="text" id="adminId" placeholder="아이디 입력" onkeypress="if(event.key==='Enter') checkPassword()">
+            <input type="password" id="password" placeholder="비밀번호 입력" onkeypress="if(event.key==='Enter') checkPassword()">
+            <button onclick="checkPassword()">로그인</button>
+        </div>
+        
+        <div class="admin-menu" id="adminMenu">
+            <h2>관리 메뉴</h2>
+            
+            <div class="admin-section">
+                <h2>공지사항 수정</h2>
+                <div id="noticeList"></div>
+                <button onclick="addNotice()" class="btn-small">+ 새 공지사항 추가</button>
+            </div>
+            
+            <div class="admin-section">
+                <h2>YouTube 채널 설정</h2>
+                <input type="text" id="youtubeChannelId" placeholder="YouTube 채널 ID 입력">
+                <button onclick="saveChannelId()" class="btn-small">저장</button>
+            </div>
+            
+            <div class="admin-section">
+                <h2>설교 영상 URL 추가</h2>
+                <input type="text" id="videoUrl" placeholder="https://www.youtube.com/watch?v=xxxxx">
+                <button onclick="addVideoUrl()" class="btn-small">추가</button>
+                <div id="videoList" style="margin-top: 15px;"></div>
+            </div>
+            
+            <div class="admin-section">
+                <h2>행사앨범 관리</h2>
+                <input type="file" id="albumImageFile" accept="image/*" onchange="handleAlbumImageUpload(event)" style="margin-bottom: 10px;">
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">또는 이미지 URL 입력:</p>
+                <input type="text" id="albumImageUrl" placeholder="이미지 URL 입력 (예: https://example.com/image.jpg)" style="margin-bottom: 10px;">
+                <button onclick="addAlbumImageFromUrl()" class="btn-small">URL로 추가</button>
+                <div id="albumList" style="margin-top: 15px;"></div>
+            </div>
+            
+            <div class="admin-section">
+                <h2>주보광고 관리</h2>
+                <button onclick="openBulletinModal()" class="btn-small">+ 새 주보 추가</button>
+                <div id="bulletinList" style="margin-top: 15px;"></div>
+            </div>
+            
+            <!-- 주보 작성 모달 -->
+            <div id="bulletinModal" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 600px;">
+                    <span class="close" onclick="closeBulletinModal()">&times;</span>
+                    <h2 id="bulletinModalTitle">새 주보 추가</h2>
+                    <form id="bulletinForm" onsubmit="saveBulletin(event)">
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">제목 *</label>
+                            <input type="text" id="bulletinTitle" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">날짜 *</label>
+                            <input type="text" id="bulletinDate" required placeholder="예: 2025.10.19" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">내용</label>
+                            <textarea id="bulletinContent" rows="5" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit;"></textarea>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">이미지</label>
+                            <input type="file" id="bulletinImageFile" accept="image/*" onchange="handleBulletinImageUpload(event)" style="margin-bottom: 10px;">
+                            <p style="font-size: 0.85rem; color: #666; margin-bottom: 5px;">또는 이미지 URL:</p>
+                            <input type="text" id="bulletinImageUrl" placeholder="이미지 URL 입력" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                            <div id="bulletinImagePreview" style="margin-top: 10px;"></div>
+                        </div>
+                        <div style="text-align: right; margin-top: 20px;">
+                            <button type="button" onclick="closeBulletinModal()" class="btn-small" style="background: #6c757d; margin-right: 10px;">취소</button>
+                            <button type="submit" class="btn-small">저장</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="admin-section">
+                <h2>기타 설정</h2>
+                <button onclick="resetAll()" class="btn-small" style="background: #dc3545; color: white;">모든 데이터 초기화</button>
+            </div>
+            
+            <a href="index.html" class="back-link">← 홈페이지로 돌아가기</a>
+        </div>
+        
+        <div class="status" id="status"></div>
+    </div>
+    
+    <script src="api.js"></script>
+    <script>
+        const ADMIN_STORAGE_KEY = 'elim-admin-auth';
+        const STORAGE_KEY = 'elim-admin-data';
+        
+        let adminData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"notices":[],"youtubeChannelId":"","videos":[],"albums":[],"bulletins":[]}');
+        
+        // 초기 admin 설정
+        async function initAdmin() {
+            const adminData = localStorage.getItem(ADMIN_STORAGE_KEY);
+            if (!adminData) {
+                // 기본 admin: eallim123 / eallim321@ (해시로 저장)
+                const defaultIdHash = await hashString('eallim123');
+                const defaultPwHash = await hashString('eallim321@');
+                localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify({
+                    idHash: defaultIdHash,
+                    pwHash: defaultPwHash
+                }));
+            }
+        }
+        
+        async function checkPassword() {
+            const id = document.getElementById('adminId').value;
+            const pw = document.getElementById('password').value;
+            
+            if (!id || !pw) {
+                alert('아이디와 비밀번호를 모두 입력하세요.');
+                return;
+            }
+            
+            // API를 통한 로그인 시도
+            try {
+                const result = await loginAPI(id, pw);
+                if (result.success) {
+                    sessionStorage.setItem('adminLoggedIn', 'true');
+                    showAdminMenu();
+                    await loadData();
+                    return;
+                }
+            } catch (error) {
+                console.log('API 로그인 실패, localStorage로 폴백:', error);
+            }
+            
+            // 폴백: localStorage 사용
+            await initAdmin();
+            
+            const adminData = JSON.parse(localStorage.getItem(ADMIN_STORAGE_KEY) || '{}');
+            const idHash = await hashString(id);
+            const pwHash = await hashString(pw);
+            
+            if (adminData.idHash === idHash && adminData.pwHash === pwHash) {
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                showAdminMenu();
+                await loadData();
+            } else {
+                alert('아이디 또는 비밀번호가 일치하지 않습니다.');
+            }
+        }
+        
+        async function hashString(str) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(str);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+        
+        function showAdminMenu() {
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('adminMenu').classList.add('active');
+        }
+        
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(adminData));
+        }
+        
+        function showStatus(message) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.style.display = 'block';
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+        }
+        
+        async function loadData() {
+            // 공지사항 로드
+            const savedChannelId = localStorage.getItem('youtubeChannelId') || adminData.youtubeChannelId || 'UCqkvh5qCX3mmisUUz79O9Ng';
+            document.getElementById('youtubeChannelId').value = savedChannelId;
+            adminData.youtubeChannelId = savedChannelId;
+            saveData();
+            renderNotices();
+            renderVideos();
+            await loadAlbums();
+            await loadBulletins();
+            
+            // 모달 외부 클릭시 닫기
+            const modal = document.getElementById('bulletinModal');
+            if (modal) {
+                window.onclick = function(event) {
+                    if (event.target === modal) {
+                        closeBulletinModal();
+                    }
+                }
+            }
+        }
+        
+        function addNotice() {
+            const title = prompt('공지사항 제목:');
+            if (!title) return;
+            
+            const date = new Date().toLocaleDateString('ko-KR');
+            adminData.notices.push({
+                title: title,
+                content: '',
+                date: date,
+                category: '공지'
+            });
+            saveData();
+            renderNotices();
+            showStatus('공지사항이 추가되었습니다.');
+        }
+        
+        function renderNotices() {
+            const container = document.getElementById('noticeList');
+            container.innerHTML = '';
+            adminData.notices.forEach((notice, index) => {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <input type="text" value="${notice.title}" onchange="updateNoticeTitle(${index}, this.value)">
+                    <input type="text" value="${notice.date}" onchange="updateNoticeDate(${index}, this.value)">
+                    <textarea onchange="updateNoticeContent(${index}, this.value)">${notice.content}</textarea>
+                    <button onclick="deleteNotice(${index})" style="background: #dc3545;">삭제</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        function updateNoticeTitle(index, value) {
+            adminData.notices[index].title = value;
+            saveData();
+        }
+        
+        function updateNoticeDate(index, value) {
+            adminData.notices[index].date = value;
+            saveData();
+        }
+        
+        function updateNoticeContent(index, value) {
+            adminData.notices[index].content = value;
+            saveData();
+        }
+        
+        function deleteNotice(index) {
+            if (confirm('정말 삭제하시겠습니까?')) {
+                adminData.notices.splice(index, 1);
+                saveData();
+                renderNotices();
+                showStatus('공지사항이 삭제되었습니다.');
+            }
+        }
+        
+        function saveChannelId() {
+            const channelId = document.getElementById('youtubeChannelId').value.trim();
+            if (!channelId) {
+                alert('채널 ID를 입력해주세요.');
+                return;
+            }
+            
+            adminData.youtubeChannelId = channelId;
+            saveData();
+            // sermons.html에서도 사용할 수 있도록 별도로 저장
+            localStorage.setItem('youtubeChannelId', channelId);
+            showStatus('YouTube 채널 ID가 저장되었습니다. 설교영상 페이지에서 자동으로 최신 영상이 표시됩니다.');
+        }
+        
+        function addVideoUrl() {
+            const url = document.getElementById('videoUrl').value;
+            if (!url) return;
+            
+            const videoId = extractVideoId(url);
+            if (videoId) {
+                adminData.videos.push(videoId);
+                saveData();
+                renderVideos();
+                document.getElementById('videoUrl').value = '';
+                showStatus('영상이 추가되었습니다.');
+            } else {
+                alert('올바른 YouTube URL을 입력하세요.');
+            }
+        }
+        
+        function extractVideoId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+        
+        function renderVideos() {
+            const container = document.getElementById('videoList');
+            container.innerHTML = '';
+            adminData.videos.forEach((id, index) => {
+                const div = document.createElement('div');
+                div.style.marginBottom = '10px';
+                div.innerHTML = `
+                    <span>Video ID: ${id}</span>
+                    <button onclick="deleteVideo(${index})" style="background: #dc3545; margin-left: 10px;">삭제</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        function deleteVideo(index) {
+            adminData.videos.splice(index, 1);
+            saveData();
+            renderVideos();
+            showStatus('영상이 삭제되었습니다.');
+        }
+        
+        // 행사앨범 관리
+        async function handleAlbumImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                alert('이미지 파일만 업로드 가능합니다.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64Image = e.target.result;
+                
+                try {
+                    await albumAPI.createAlbum(base64Image);
+                    showStatus('사진이 추가되었습니다.');
+                    await loadAlbums();
+                    document.getElementById('albumImageFile').value = '';
+                } catch (error) {
+                    console.log('API 저장 실패, localStorage로 폴백:', error);
+                    // 폴백: localStorage 사용
+                    if (!adminData.albums) {
+                        adminData.albums = [];
+                    }
+                    
+                    adminData.albums.push({
+                        id: Date.now(),
+                        imageUrl: base64Image
+                    });
+                    saveData();
+                    renderAlbums();
+                    document.getElementById('albumImageFile').value = '';
+                    showStatus('사진이 추가되었습니다.');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        async function addAlbumImageFromUrl() {
+            const url = document.getElementById('albumImageUrl').value.trim();
+            if (!url) {
+                alert('이미지 URL을 입력해주세요.');
+                return;
+            }
+            
+            try {
+                await albumAPI.createAlbum(url);
+                showStatus('사진이 추가되었습니다.');
+                await loadAlbums();
+                document.getElementById('albumImageUrl').value = '';
+            } catch (error) {
+                console.log('API 저장 실패, localStorage로 폴백:', error);
+                // 폴백: localStorage 사용
+                if (!adminData.albums) {
+                    adminData.albums = [];
+                }
+                
+                adminData.albums.push({
+                    id: Date.now(),
+                    imageUrl: url
+                });
+                saveData();
+                renderAlbums();
+                document.getElementById('albumImageUrl').value = '';
+                showStatus('사진이 추가되었습니다.');
+            }
+        }
+        
+        async function loadAlbums() {
+            try {
+                const result = await albumAPI.getAlbums();
+                if (result && result.length > 0) {
+                    adminData.albums = result.map(a => ({
+                        id: a.id,
+                        imageUrl: a.image_url
+                    }));
+                    saveData();
+                }
+                renderAlbums();
+            } catch (error) {
+                console.log('API 로드 실패, localStorage 사용:', error);
+                renderAlbums();
+            }
+        }
+        
+        function renderAlbums() {
+            const container = document.getElementById('albumList');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            if (!adminData.albums || adminData.albums.length === 0) {
+                container.innerHTML = '<p style="color: #999;">추가된 사진이 없습니다.</p>';
+                return;
+            }
+            
+            adminData.albums.forEach((album, index) => {
+                const div = document.createElement('div');
+                div.style.cssText = 'margin-bottom: 15px; padding: 15px; background: white; border: 1px solid #ddd; border-radius: 5px; display: flex; align-items: center; gap: 15px;';
+                const imageDisplay = album.imageUrl.length > 100 ? 
+                    `<img src="${album.imageUrl.substring(0, 100)}..." alt="앨범 사진" style="width: 100px; height: 100px; object-fit: cover; border-radius: 5px;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22%3E이미지 없음%3C/text%3E%3C/svg%3E'">` :
+                    `<img src="${album.imageUrl}" alt="앨범 사진" style="width: 100px; height: 100px; object-fit: cover; border-radius: 5px;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22%3E이미지 없음%3C/text%3E%3C/svg%3E'">`;
+                
+                div.innerHTML = `
+                    ${imageDisplay}
+                    <div style="flex: 1;">
+                        <p style="word-break: break-all; font-size: 0.9rem; color: #666;">${album.imageUrl.length > 100 ? '업로드된 이미지' : album.imageUrl}</p>
+                    </div>
+                    <button onclick="deleteAlbumImage(${index})" style="background: #dc3545; padding: 8px 16px; font-size: 0.9rem; color: white; border: none; border-radius: 5px; cursor: pointer;">삭제</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        async function deleteAlbumImage(index) {
+            if (!confirm('이 사진을 삭제하시겠습니까?')) return;
+            
+            try {
+                const album = adminData.albums[index];
+                await albumAPI.deleteAlbum(album.id);
+                adminData.albums.splice(index, 1);
+                saveData();
+                renderAlbums();
+                showStatus('사진이 삭제되었습니다.');
+            } catch (error) {
+                console.log('API 삭제 실패, localStorage로 폴백:', error);
+                adminData.albums.splice(index, 1);
+                saveData();
+                renderAlbums();
+                showStatus('사진이 삭제되었습니다.');
+            }
+        }
+        
+        // 주보광고 관리
+        let editingBulletinIndex = null;
+        let bulletinImageBase64 = null;
+        
+        function openBulletinModal(index = null) {
+            editingBulletinIndex = index;
+            const modal = document.getElementById('bulletinModal');
+            const form = document.getElementById('bulletinForm');
+            const titleInput = document.getElementById('bulletinTitle');
+            const dateInput = document.getElementById('bulletinDate');
+            const contentInput = document.getElementById('bulletinContent');
+            const imageUrlInput = document.getElementById('bulletinImageUrl');
+            const imageFileInput = document.getElementById('bulletinImageFile');
+            const previewDiv = document.getElementById('bulletinImagePreview');
+            const modalTitle = document.getElementById('bulletinModalTitle');
+            
+            // 폼 초기화
+            form.reset();
+            bulletinImageBase64 = null;
+            previewDiv.innerHTML = '';
+            
+            if (index !== null) {
+                // 수정 모드
+                modalTitle.textContent = '주보 수정';
+                const bulletin = adminData.bulletins[index];
+                titleInput.value = bulletin.title || '';
+                dateInput.value = bulletin.date || '';
+                contentInput.value = bulletin.content || '';
+                imageUrlInput.value = bulletin.imageUrl || '';
+                
+                if (bulletin.imageUrl) {
+                    if (bulletin.imageUrl.startsWith('data:image')) {
+                        bulletinImageBase64 = bulletin.imageUrl;
+                        previewDiv.innerHTML = `<img src="${bulletin.imageUrl}" alt="미리보기" style="max-width: 200px; max-height: 200px; border-radius: 5px; margin-top: 10px;">`;
+                    } else {
+                        imageUrlInput.value = bulletin.imageUrl;
+                        previewDiv.innerHTML = `<img src="${bulletin.imageUrl}" alt="미리보기" style="max-width: 200px; max-height: 200px; border-radius: 5px; margin-top: 10px;" onerror="this.style.display='none'">`;
+                    }
+                }
+            } else {
+                // 새로 추가 모드
+                modalTitle.textContent = '새 주보 추가';
+                const today = new Date();
+                dateInput.value = today.toLocaleDateString('ko-KR').replace(/\. /g, '.').replace(/\.$/, '');
+            }
+            
+            modal.style.display = 'flex';
+        }
+        
+        function closeBulletinModal() {
+            const modal = document.getElementById('bulletinModal');
+            modal.style.display = 'none';
+            editingBulletinIndex = null;
+            bulletinImageBase64 = null;
+            document.getElementById('bulletinForm').reset();
+            document.getElementById('bulletinImagePreview').innerHTML = '';
+        }
+        
+        function handleBulletinImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                alert('이미지 파일만 업로드 가능합니다.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                bulletinImageBase64 = e.target.result;
+                const previewDiv = document.getElementById('bulletinImagePreview');
+                previewDiv.innerHTML = `<img src="${bulletinImageBase64}" alt="미리보기" style="max-width: 200px; max-height: 200px; border-radius: 5px; margin-top: 10px;">`;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        async function saveBulletin(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('bulletinTitle').value.trim();
+            const date = document.getElementById('bulletinDate').value.trim();
+            const content = document.getElementById('bulletinContent').value.trim();
+            const imageUrl = document.getElementById('bulletinImageUrl').value.trim();
+            
+            if (!title || !date) {
+                alert('제목과 날짜는 필수입니다.');
+                return;
+            }
+            
+            // 이미지 URL 결정 (업로드한 이미지 > URL 입력)
+            let finalImageUrl = '';
+            if (bulletinImageBase64) {
+                finalImageUrl = bulletinImageBase64;
+            } else if (imageUrl) {
+                finalImageUrl = imageUrl;
+            }
+            
+            try {
+                if (editingBulletinIndex !== null) {
+                    // 수정
+                    const bulletin = adminData.bulletins[editingBulletinIndex];
+                    await bulletinAPI.updateBulletin(bulletin.id, title, date, content, finalImageUrl);
+                    // localStorage에도 저장
+                    adminData.bulletins[editingBulletinIndex].title = title;
+                    adminData.bulletins[editingBulletinIndex].date = date;
+                    adminData.bulletins[editingBulletinIndex].content = content;
+                    adminData.bulletins[editingBulletinIndex].imageUrl = finalImageUrl;
+                    saveData();
+                    showStatus('주보가 수정되었습니다.');
+                } else {
+                    // 새로 추가
+                    await bulletinAPI.createBulletin(title, date, content, finalImageUrl);
+                    // localStorage에도 저장
+                    if (!adminData.bulletins) {
+                        adminData.bulletins = [];
+                    }
+                    adminData.bulletins.push({
+                        id: Date.now(),
+                        title: title,
+                        date: date,
+                        content: content,
+                        imageUrl: finalImageUrl
+                    });
+                    saveData();
+                    showStatus('주보가 추가되었습니다.');
+                }
+                await loadBulletins();
+                closeBulletinModal();
+            } catch (error) {
+                console.log('API 저장 실패, localStorage로 폴백:', error);
+                // 폴백: localStorage 사용
+                if (!adminData.bulletins) {
+                    adminData.bulletins = [];
+                }
+                
+                if (editingBulletinIndex !== null) {
+                    adminData.bulletins[editingBulletinIndex].title = title;
+                    adminData.bulletins[editingBulletinIndex].date = date;
+                    adminData.bulletins[editingBulletinIndex].content = content;
+                    adminData.bulletins[editingBulletinIndex].imageUrl = finalImageUrl;
+                    showStatus('주보가 수정되었습니다.');
+                } else {
+                    adminData.bulletins.push({
+                        id: Date.now(),
+                        title: title,
+                        date: date,
+                        content: content,
+                        imageUrl: finalImageUrl
+                    });
+                    showStatus('주보가 추가되었습니다.');
+                }
+                
+                saveData();
+                renderBulletins();
+                closeBulletinModal();
+            }
+        }
+        
+        async function loadBulletins() {
+            try {
+                const result = await bulletinAPI.getBulletins();
+                if (result && result.length > 0) {
+                    adminData.bulletins = result.map(b => ({
+                        id: b.id,
+                        title: b.title,
+                        date: b.date,
+                        content: b.content,
+                        imageUrl: b.image_url
+                    }));
+                    saveData();
+                }
+                renderBulletins();
+            } catch (error) {
+                console.log('API 로드 실패, localStorage 사용:', error);
+                renderBulletins();
+            }
+        }
+        
+        function renderBulletins() {
+            const container = document.getElementById('bulletinList');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            if (!adminData.bulletins || adminData.bulletins.length === 0) {
+                container.innerHTML = '<p style="color: #999;">추가된 주보가 없습니다.</p>';
+                return;
+            }
+            
+            // 날짜순 정렬 (최신순)
+            const sortedBulletins = [...adminData.bulletins].sort((a, b) => {
+                const dateA = new Date(a.date.replace(/\./g, '-'));
+                const dateB = new Date(b.date.replace(/\./g, '-'));
+                return dateB - dateA;
+            });
+            
+            sortedBulletins.forEach((bulletin, index) => {
+                const originalIndex = adminData.bulletins.findIndex(b => b.id === bulletin.id);
+                const div = document.createElement('div');
+                div.style.cssText = 'margin-bottom: 15px; padding: 15px; background: white; border: 1px solid #ddd; border-radius: 5px;';
+                div.innerHTML = `
+                    <div style="display: flex; gap: 15px; align-items: start;">
+                        ${bulletin.imageUrl ? `<img src="${bulletin.imageUrl}" alt="주보 이미지" style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;" onerror="this.style.display='none'">` : ''}
+                        <div style="flex: 1;">
+                            <div style="margin-bottom: 8px;">
+                                <strong>${bulletin.title}</strong>
+                            </div>
+                            <div style="margin-bottom: 8px; font-size: 0.9rem; color: #666;">
+                                📅 ${bulletin.date}
+                            </div>
+                            ${bulletin.content ? `<div style="margin-bottom: 8px; font-size: 0.9rem; color: #555;">${bulletin.content.substring(0, 100)}${bulletin.content.length > 100 ? '...' : ''}</div>` : ''}
+                            <div style="margin-top: 10px;">
+                                <button onclick="openBulletinModal(${originalIndex})" style="background: #2C5F8D; color: white; padding: 8px 16px; font-size: 0.9rem; border: none; border-radius: 5px; cursor: pointer; margin-right: 5px;">수정</button>
+                                <button onclick="deleteBulletin(${originalIndex})" style="background: #dc3545; color: white; padding: 8px 16px; font-size: 0.9rem; border: none; border-radius: 5px; cursor: pointer;">삭제</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        async function deleteBulletin(index) {
+            if (!confirm('이 주보를 삭제하시겠습니까?')) return;
+            
+            try {
+                const bulletin = adminData.bulletins[index];
+                await bulletinAPI.deleteBulletin(bulletin.id);
+                adminData.bulletins.splice(index, 1);
+                saveData();
+                renderBulletins();
+                showStatus('주보가 삭제되었습니다.');
+            } catch (error) {
+                console.log('API 삭제 실패, localStorage로 폴백:', error);
+                adminData.bulletins.splice(index, 1);
+                saveData();
+                renderBulletins();
+                showStatus('주보가 삭제되었습니다.');
+            }
+        }
+        
+        function resetAll() {
+            if (confirm('⚠️ 모든 데이터를 초기화하시겠습니까?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        }
+        
+        // 페이지 로드 시 세션 확인
+        window.addEventListener('load', async () => {
+            const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+            if (isLoggedIn) {
+                showAdminMenu();
+                await loadData();
+            }
+        });
+    </script>
+</body>
+</html>
+
+
