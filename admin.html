@@ -237,9 +237,13 @@
             <h2>관리 메뉴</h2>
             
             <div class="admin-section">
-                <h2>공지사항 수정</h2>
-                <div id="noticeList"></div>
-                <button onclick="addNotice()" class="btn-small">+ 새 공지사항 추가</button>
+                <h2>게시판 공지사항 관리</h2>
+                <div style="margin-bottom: 15px;">
+                    <input type="text" id="boardSearch" placeholder="게시글 검색..." style="width: 100%; max-width: 400px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px;" onkeyup="filterBoardPosts()">
+                    <button onclick="openBoardPostModal()" class="btn-small" style="margin-right: 10px;">+ 새 게시글 작성</button>
+                    <button onclick="loadBoardPosts()" class="btn-small" style="background: #6c757d;">새로고침</button>
+                </div>
+                <div id="boardPostList" style="margin-top: 15px;"></div>
             </div>
             
             <div class="admin-section">
@@ -410,6 +414,15 @@
                 window.onclick = function(event) {
                     if (event.target === modal) {
                         closeBulletinModal();
+                    }
+                }
+            }
+            
+            const boardModal = document.getElementById('boardPostModal');
+            if (boardModal) {
+                window.onclick = function(event) {
+                    if (event.target === boardModal) {
+                        closeBoardPostModal();
                     }
                 }
             }
@@ -930,6 +943,225 @@
             }
         }
         
+        // 게시판 관리
+        let allBoardPosts = [];
+        let editingBoardPostIndex = null;
+        let filteredBoardPosts = [];
+        
+        async function loadBoardPosts() {
+            try {
+                const container = document.getElementById('boardPostList');
+                container.innerHTML = '<p style="color: #666; text-align: center;">게시글을 불러오는 중...</p>';
+                
+                const posts = await boardAPI.getPosts();
+                // API 데이터 형식 변환
+                allBoardPosts = posts.map(post => ({
+                    id: post.id,
+                    title: post.title,
+                    content: post.content,
+                    author: post.author || '관리자',
+                    date: post.created_at ? new Date(post.created_at).getTime() : (post.date || Date.now()),
+                    created_at: post.created_at || new Date(post.date || Date.now()).toISOString()
+                }));
+                
+                // 날짜순 정렬 (최신순)
+                allBoardPosts.sort((a, b) => b.date - a.date);
+                filteredBoardPosts = [...allBoardPosts];
+                
+                renderBoardPosts();
+                showStatus('게시글을 불러왔습니다.');
+            } catch (error) {
+                console.error('게시글 로드 실패:', error);
+                const container = document.getElementById('boardPostList');
+                container.innerHTML = '<p style="color: #dc3545;">게시글을 불러오는데 실패했습니다.</p>';
+            }
+        }
+        
+        function filterBoardPosts() {
+            const searchTerm = document.getElementById('boardSearch').value.toLowerCase();
+            if (!searchTerm) {
+                filteredBoardPosts = [...allBoardPosts];
+            } else {
+                filteredBoardPosts = allBoardPosts.filter(post => 
+                    post.title.toLowerCase().includes(searchTerm) || 
+                    post.content.toLowerCase().includes(searchTerm)
+                );
+            }
+            renderBoardPosts();
+        }
+        
+        function renderBoardPosts() {
+            const container = document.getElementById('boardPostList');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            if (!filteredBoardPosts || filteredBoardPosts.length === 0) {
+                container.innerHTML = '<p style="color: #999; text-align: center;">게시글이 없습니다.</p>';
+                return;
+            }
+            
+            filteredBoardPosts.forEach((post, index) => {
+                const originalIndex = allBoardPosts.findIndex(p => p.id === post.id);
+                const postDate = new Date(post.date).toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                const div = document.createElement('div');
+                div.style.cssText = 'margin-bottom: 15px; padding: 20px; background: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);';
+                div.innerHTML = `
+                    <div style="margin-bottom: 12px;">
+                        <h3 style="margin: 0 0 8px 0; color: #2C3E50; font-size: 1.1rem; font-weight: 600;">${post.title}</h3>
+                        <div style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">
+                            <span>📅 ${postDate}</span>
+                            <span style="margin-left: 15px;">👤 ${post.author || '관리자'}</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #555; line-height: 1.6; margin-bottom: 15px; max-height: 80px; overflow: hidden; text-overflow: ellipsis;">
+                            ${post.content.replace(/\n/g, '<br>').substring(0, 150)}${post.content.length > 150 ? '...' : ''}
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button onclick="viewBoardPost(${originalIndex})" style="background: #17a2b8; color: white; padding: 8px 16px; font-size: 0.9rem; border: none; border-radius: 5px; cursor: pointer;">상세보기</button>
+                            <button onclick="openBoardPostModal(${originalIndex})" style="background: #2C5F8D; color: white; padding: 8px 16px; font-size: 0.9rem; border: none; border-radius: 5px; cursor: pointer;">수정</button>
+                            <button onclick="deleteBoardPost(${originalIndex})" style="background: #dc3545; color: white; padding: 8px 16px; font-size: 0.9rem; border: none; border-radius: 5px; cursor: pointer;">삭제</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        function viewBoardPost(index) {
+            const post = allBoardPosts[index];
+            if (!post) return;
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 800px;">
+                    <span class="close" onclick="this.closest('.modal').remove()">&times;</span>
+                    <h2 style="margin-bottom: 20px; color: #2C3E50;">${post.title}</h2>
+                    <div style="margin-bottom: 20px; font-size: 0.9rem; color: #666; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+                        <span>📅 ${new Date(post.date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        <span style="margin-left: 15px;">👤 ${post.author || '관리자'}</span>
+                    </div>
+                    <div style="line-height: 1.8; color: #333; white-space: pre-wrap; font-size: 0.95rem; padding: 20px; background: #f9f9f9; border-radius: 5px;">
+                        ${post.content.replace(/\n/g, '<br>')}
+                    </div>
+                    <div style="margin-top: 20px; text-align: right;">
+                        <button onclick="openBoardPostModal(${index})" class="btn-small" style="background: #2C5F8D; margin-right: 10px;">수정</button>
+                        <button onclick="deleteBoardPost(${index}); this.closest('.modal').remove();" class="btn-small" style="background: #dc3545; margin-right: 10px;">삭제</button>
+                        <button onclick="this.closest('.modal').remove()" class="btn-small" style="background: #6c757d;">닫기</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // 모달 외부 클릭시 닫기
+            modal.onclick = function(event) {
+                if (event.target === modal) {
+                    modal.remove();
+                }
+            };
+        }
+        
+        function openBoardPostModal(index = null) {
+            editingBoardPostIndex = index;
+            const modal = document.getElementById('boardPostModal');
+            const form = document.getElementById('boardPostForm');
+            const titleInput = document.getElementById('boardPostTitle');
+            const contentInput = document.getElementById('boardPostContent');
+            const modalTitle = document.getElementById('boardPostModalTitle');
+            
+            // 폼 초기화
+            form.reset();
+            
+            if (index !== null) {
+                // 수정 모드
+                modalTitle.textContent = '게시글 수정';
+                const post = allBoardPosts[index];
+                titleInput.value = post.title || '';
+                contentInput.value = post.content || '';
+            } else {
+                // 새로 추가 모드
+                modalTitle.textContent = '새 게시글 작성';
+            }
+            
+            modal.style.display = 'flex';
+        }
+        
+        function closeBoardPostModal() {
+            const modal = document.getElementById('boardPostModal');
+            modal.style.display = 'none';
+            editingBoardPostIndex = null;
+            document.getElementById('boardPostForm').reset();
+        }
+        
+        async function saveBoardPost(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('boardPostTitle').value.trim();
+            const content = document.getElementById('boardPostContent').value.trim();
+            
+            if (!title || !content) {
+                alert('제목과 내용을 모두 입력해주세요.');
+                return;
+            }
+            
+            try {
+                if (editingBoardPostIndex !== null) {
+                    // 수정
+                    const post = allBoardPosts[editingBoardPostIndex];
+                    const result = await boardAPI.updatePost(post.id, title, content);
+                    if (result && result.error) {
+                        alert('오류: ' + result.error);
+                        return;
+                    }
+                    showStatus('게시글이 수정되었습니다.');
+                } else {
+                    // 새로 추가
+                    const result = await boardAPI.createPost(title, content);
+                    if (result && result.error) {
+                        alert('오류: ' + result.error);
+                        return;
+                    }
+                    if (!result || !result.success) {
+                        alert('게시글 저장에 실패했습니다.');
+                        return;
+                    }
+                    showStatus('게시글이 추가되었습니다.');
+                }
+                
+                closeBoardPostModal();
+                await loadBoardPosts();
+            } catch (error) {
+                console.error('게시글 저장 실패:', error);
+                alert('게시글 저장에 실패했습니다: ' + (error.message || error));
+            }
+        }
+        
+        async function deleteBoardPost(index) {
+            if (!confirm('이 게시글을 삭제하시겠습니까?')) return;
+            
+            try {
+                const post = allBoardPosts[index];
+                await boardAPI.deletePost(post.id);
+                allBoardPosts.splice(index, 1);
+                filteredBoardPosts = allBoardPosts.filter(p => 
+                    !document.getElementById('boardSearch').value || 
+                    p.title.toLowerCase().includes(document.getElementById('boardSearch').value.toLowerCase()) ||
+                    p.content.toLowerCase().includes(document.getElementById('boardSearch').value.toLowerCase())
+                );
+                renderBoardPosts();
+                showStatus('게시글이 삭제되었습니다.');
+            } catch (error) {
+                console.error('게시글 삭제 실패:', error);
+                alert('게시글 삭제에 실패했습니다: ' + (error.message || error));
+            }
+        }
+        
         function resetAll() {
             if (confirm('⚠️ 모든 데이터를 초기화하시겠습니까?')) {
                 localStorage.removeItem(STORAGE_KEY);
@@ -943,6 +1175,7 @@
             if (isLoggedIn) {
                 showAdminMenu();
                 await loadData();
+                await loadBoardPosts();
             }
         });
     </script>
