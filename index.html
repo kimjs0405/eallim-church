@@ -55,72 +55,199 @@
 
     <!-- 히어로 섹션 -->
     <section id="home" class="hero">
+        <div class="hero-overlay"></div>
         <div class="hero-content">
-            <h1 class="hero-title">God bless you!!</h1>
+            <h1 class="hero-title">엘림교회에 오신 것을 환영합니다</h1>
             <p class="hero-subtitle">평안하여 든든히 서가는 교회</p>
-            <p class="hero-verse">그리하여 온 유대와 갈릴리와 사마리아 교회가 평안하여 든든히 서 가고 주를 경외함과 성령의 위로로 진행하여 수가 더 많아지니라<br><span style="font-size: 0.9rem;">사도행전 9장 31절</span></p>
-        </div>
-    </section>
-
-    <!-- 메인 카드 섹션 -->
-    <section class="main-cards-section">
-        <div class="container">
-            <div class="main-cards-grid">
-                <a href="sermons.html" class="main-card main-card-blue">
-                    <div class="main-card-icon icon-sermon"></div>
-                    <div class="main-card-content">
-                        <h3>주일오전예배</h3>
-                        <p>신정환 담임목사 설교</p>
-                    </div>
-                </a>
-                <a href="#worship" class="main-card main-card-gray">
-                    <div class="main-card-icon icon-worship"></div>
-                    <div class="main-card-content">
-                        <h3>예배안내</h3>
-                        <p>SERVICE TIMES</p>
-                    </div>
-                </a>
-                <a href="#vision" class="main-card main-card-green">
-                    <div class="main-card-icon icon-vision"></div>
-                    <div class="main-card-content">
-                        <h3>교회비전</h3>
-                        <p>ELIM VISION</p>
-                    </div>
-                </a>
-                <a href="#programs" class="main-card main-card-teal">
-                    <div class="main-card-icon icon-minister"></div>
-                    <div class="main-card-content">
-                        <h3>섬기는 이들</h3>
-                        <p>MINISTER</p>
-                    </div>
-                </a>
+            <p class="hero-verse">"그리하여 온 유대와 갈릴리와 사마리아 교회가 평안하여 든든히 서 가고 주를 경외함과 성령의 위로로 진행하여 수가 더 많아지니라"<br><span style="font-size: 0.9rem; margin-top: 10px; display: block;">사도행전 9장 31절</span></p>
+            <div class="hero-info">
+                <div class="hero-info-item">
+                    <span class="hero-info-icon">📞</span>
+                    <span>02-866-4623</span>
+                </div>
+                <div class="hero-info-item">
+                    <span class="hero-info-icon">📍</span>
+                    <span>서울특별시 영등포구 여의도동</span>
+                </div>
+                <div class="hero-info-item">
+                    <span class="hero-info-icon">⏰</span>
+                    <span>주일 오전 11시 예배</span>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- 게시판 & 앨범 섹션 -->
-    <section class="board-section">
+    <!-- 교회소식 스크롤 바 -->
+    <section class="news-scroll-section">
         <div class="container">
-            <div class="board-grid">
-                <!-- 주보광고 -->
-                <div class="board-item">
-                    <h3 class="board-title">주보광고</h3>
-                    <div class="board-list" id="bulletinList">
-                        <div class="loading-message">
-                            <p>주보를 불러오는 중...</p>
-                        </div>
-                    </div>
+            <div class="news-scroll-bar">
+                <div class="news-scroll-icon">📢</div>
+                <div class="news-scroll-label">교회소식</div>
+                <div class="news-scroll-content" id="newsScrollContent">
+                    <!-- 동적으로 로드됨 -->
                 </div>
+                <div class="news-scroll-date">[24.11.01]</div>
+                <div class="news-scroll-arrows">
+                    <button class="news-arrow-btn" onclick="scrollNews('up')">▲</button>
+                    <button class="news-arrow-btn" onclick="scrollNews('down')">▼</button>
+                </div>
+            </div>
+        </div>
+    </section>
 
-                <!-- 행사앨범 -->
-                <div class="board-item">
-                    <h3 class="board-title">행사앨범</h3>
-                    <div class="album-grid" id="albumGrid">
-                        <div class="loading-message">
-                            <p>앨범을 불러오는 중...</p>
+    <!-- 메인 콘텐츠 영역 (3단 레이아웃) -->
+    <section class="main-content-section">
+        <div class="container">
+            <div class="main-layout">
+                <!-- 왼쪽 사이드바 -->
+                <aside class="main-sidebar">
+                    <!-- 오늘의 말씀 -->
+                    <div class="sidebar-box daily-verse-box">
+                        <h3 class="sidebar-title">📖 오늘의 말씀</h3>
+                        <p class="daily-verse-text">"너희는 먼저 그의 나라와 그의 의를 구하라 그리하면 이 모든 것을 너희에게 더하시리라"</p>
+                        <p class="daily-verse-ref">마태복음 6장 33절</p>
+                    </div>
+
+                    <!-- 빠른 링크 -->
+                    <div class="sidebar-box quick-links-box">
+                        <h3 class="sidebar-title">🔗 빠른 링크</h3>
+                        <ul class="quick-links-list">
+                            <li><a href="sermons.html">📺 주일오전예배</a></li>
+                            <li><a href="#worship">⛪ 예배안내</a></li>
+                            <li><a href="news.html">📢 공지사항</a></li>
+                            <li><a href="board.html">💬 게시판</a></li>
+                            <li><a href="contact.html">🗺️ 오시는길</a></li>
+                            <li><a href="about.html">ℹ️ 교회소개</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- 교회 일정 -->
+                    <div class="sidebar-box schedule-box">
+                        <h3 class="sidebar-title">📅 이번 주 일정</h3>
+                        <ul class="schedule-list">
+                            <li>
+                                <span class="schedule-date">11/03 (일)</span>
+                                <span class="schedule-event">주일 예배 (오전 11시)</span>
+                            </li>
+                            <li>
+                                <span class="schedule-date">11/05 (화)</span>
+                                <span class="schedule-event">여전도회 모임</span>
+                            </li>
+                            <li>
+                                <span class="schedule-date">11/07 (목)</span>
+                                <span class="schedule-event">수요 예배 (오후 7:30)</span>
+                            </li>
+                            <li>
+                                <span class="schedule-date">11/08 (금)</span>
+                                <span class="schedule-event">금요 기도회</span>
+                            </li>
+                        </ul>
+                    </div>
+                </aside>
+
+                <!-- 중앙 메인 콘텐츠 -->
+                <main class="main-content">
+                    <!-- 주보광고 -->
+                    <div class="content-box bulletin-box">
+                        <div class="content-box-header">
+                            <h3 class="content-box-title">📋 주보광고</h3>
+                            <a href="news.html" class="content-box-more">더보기 →</a>
+                        </div>
+                        <div class="board-list" id="bulletinList">
+                            <div class="loading-message">
+                                <p>주보를 불러오는 중...</p>
+                            </div>
                         </div>
                     </div>
-                </div>
+
+                    <!-- 행사앨범 -->
+                    <div class="content-box album-box">
+                        <div class="content-box-header">
+                            <h3 class="content-box-title">📷 행사앨범</h3>
+                            <a href="news.html" class="content-box-more">더보기 →</a>
+                        </div>
+                        <div class="album-grid" id="albumGrid">
+                            <div class="loading-message">
+                                <p>앨범을 불러오는 중...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 교회 소식 -->
+                    <div class="content-box news-box">
+                        <div class="content-box-header">
+                            <h3 class="content-box-title">📰 교회 소식</h3>
+                            <a href="news.html" class="content-box-more">더보기 →</a>
+                        </div>
+                        <div class="news-list">
+                            <div class="news-item">
+                                <span class="news-date">2024.11.01</span>
+                                <a href="news.html" class="news-title">11월 3일 엘림행복축제 위로(We路) 행사 안내</a>
+                            </div>
+                            <div class="news-item">
+                                <span class="news-date">2024.10.28</span>
+                                <a href="news.html" class="news-title">주일 예배 안내 및 찬양팀 모집</a>
+                            </div>
+                            <div class="news-item">
+                                <span class="news-date">2024.10.25</span>
+                                <a href="news.html" class="news-title">금요 기도회 시간 변경 안내</a>
+                            </div>
+                            <div class="news-item">
+                                <span class="news-date">2024.10.20</span>
+                                <a href="news.html" class="news-title">주일학교 가을 소풍 안내</a>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+
+                <!-- 오른쪽 사이드바 -->
+                <aside class="main-sidebar right-sidebar">
+                    <!-- 예배 안내 -->
+                    <div class="sidebar-box worship-info-box">
+                        <h3 class="sidebar-title">⛪ 예배 안내</h3>
+                        <div class="worship-info-list">
+                            <div class="worship-info-item">
+                                <div class="worship-info-time">주일 예배</div>
+                                <div class="worship-info-detail">오전 11:00 / 본당</div>
+                            </div>
+                            <div class="worship-info-item">
+                                <div class="worship-info-time">오전 예배</div>
+                                <div class="worship-info-detail">오전 9:00 / 본당</div>
+                            </div>
+                            <div class="worship-info-item">
+                                <div class="worship-info-time">수요 예배</div>
+                                <div class="worship-info-detail">오후 7:30 / 본당</div>
+                            </div>
+                            <div class="worship-info-item">
+                                <div class="worship-info-time">금요 기도회</div>
+                                <div class="worship-info-detail">오후 7:30 / 본당</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 교회 활동 -->
+                    <div class="sidebar-box programs-box">
+                        <h3 class="sidebar-title">👥 교회 활동</h3>
+                        <ul class="programs-list">
+                            <li><a href="#programs">👨‍👩‍👧‍👦 주일학교</a></li>
+                            <li><a href="#programs">🙌 청년부</a></li>
+                            <li><a href="#programs">💝 여전도회</a></li>
+                            <li><a href="#programs">🤝 남전도회</a></li>
+                            <li><a href="#programs">🎵 찬양팀</a></li>
+                            <li><a href="#programs">🌍 선교부</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- 연락처 -->
+                    <div class="sidebar-box contact-box">
+                        <h3 class="sidebar-title">📞 연락처</h3>
+                        <div class="contact-info">
+                            <p><strong>전화:</strong> 02-866-4623</p>
+                            <p><strong>이메일:</strong> info@elimchurch.org</p>
+                            <p><strong>주소:</strong> 서울특별시 영등포구 여의도동</p>
+                        </div>
+                    </div>
+                </aside>
             </div>
         </div>
     </section>

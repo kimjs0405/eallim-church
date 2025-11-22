@@ -269,6 +269,13 @@
             </div>
             
             <div class="admin-section">
+                <h2>교회소식 바 관리</h2>
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">메인 페이지 상단에 표시되는 교회소식 스크롤 바를 관리합니다.</p>
+                <button onclick="openNewsScrollModal()" class="btn-small">+ 새 소식 추가</button>
+                <div id="newsScrollList" style="margin-top: 15px;"></div>
+            </div>
+            
+            <div class="admin-section">
                 <h2>주보광고 관리</h2>
                 <button onclick="openBulletinModal()" class="btn-small">+ 새 주보 추가</button>
                 <div id="bulletinList" style="margin-top: 15px;"></div>
@@ -301,6 +308,24 @@
                         </div>
                         <div style="text-align: right; margin-top: 20px;">
                             <button type="button" onclick="closeBulletinModal()" class="btn-small" style="background: #6c757d; margin-right: 10px;">취소</button>
+                            <button type="submit" class="btn-small">저장</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- 교회소식 바 관리 모달 -->
+            <div id="newsScrollModal" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 600px;">
+                    <span class="close" onclick="closeNewsScrollModal()">&times;</span>
+                    <h2 id="newsScrollModalTitle">새 소식 추가</h2>
+                    <form id="newsScrollForm" onsubmit="saveNewsScroll(event)">
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">소식 내용 *</label>
+                            <textarea id="newsScrollText" required rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit; resize: vertical;" placeholder="예: 11월 3일 엘림행복축제 위로(We路) 행사가 진행됩니다."></textarea>
+                        </div>
+                        <div style="text-align: right; margin-top: 20px;">
+                            <button type="button" onclick="closeNewsScrollModal()" class="btn-small" style="background: #6c757d; margin-right: 10px;">취소</button>
                             <button type="submit" class="btn-small">저장</button>
                         </div>
                     </form>
@@ -345,7 +370,7 @@
         const ADMIN_STORAGE_KEY = 'elim-admin-auth';
         const STORAGE_KEY = 'elim-admin-data';
         
-        let adminData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"notices":[],"youtubeChannelId":"","videos":[],"albums":[],"bulletins":[]}');
+        let adminData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"notices":[],"youtubeChannelId":"","videos":[],"albums":[],"bulletins":[],"newsScrollItems":[]}');
         
         // 초기 admin 설정
         async function initAdmin() {
@@ -429,6 +454,7 @@
             renderVideos();
             await loadAlbums();
             await loadBulletins();
+            renderNewsScrollItems();
             
             // 모달 외부 클릭시 닫기
             const modal = document.getElementById('bulletinModal');
@@ -446,6 +472,16 @@
                 window.onclick = function(event) {
                     if (event.target === boardModal) {
                         closeBoardPostModal();
+                    }
+                }
+            }
+            
+            // 교회소식 모달 외부 클릭시 닫기
+            const newsScrollModal = document.getElementById('newsScrollModal');
+            if (newsScrollModal) {
+                window.onclick = function(event) {
+                    if (event.target === newsScrollModal) {
+                        closeNewsScrollModal();
                     }
                 }
             }
@@ -1200,6 +1236,101 @@
                 console.error('게시글 삭제 실패:', error);
                 alert('게시글 삭제에 실패했습니다: ' + (error.message || error));
             }
+        }
+        
+        // 교회소식 바 관리
+        let editingNewsScrollIndex = null;
+        
+        function openNewsScrollModal(index = null) {
+            editingNewsScrollIndex = index;
+            const modal = document.getElementById('newsScrollModal');
+            const form = document.getElementById('newsScrollForm');
+            const textInput = document.getElementById('newsScrollText');
+            const modalTitle = document.getElementById('newsScrollModalTitle');
+            
+            form.reset();
+            
+            if (index !== null) {
+                modalTitle.textContent = '소식 수정';
+                const item = adminData.newsScrollItems[index];
+                textInput.value = item.text || '';
+            } else {
+                modalTitle.textContent = '새 소식 추가';
+            }
+            
+            modal.style.display = 'flex';
+        }
+        
+        function closeNewsScrollModal() {
+            const modal = document.getElementById('newsScrollModal');
+            modal.style.display = 'none';
+            editingNewsScrollIndex = null;
+            document.getElementById('newsScrollForm').reset();
+        }
+        
+        function saveNewsScroll(event) {
+            event.preventDefault();
+            
+            const text = document.getElementById('newsScrollText').value.trim();
+            
+            if (!text) {
+                alert('소식 내용을 입력해주세요.');
+                return;
+            }
+            
+            if (!adminData.newsScrollItems) {
+                adminData.newsScrollItems = [];
+            }
+            
+            if (editingNewsScrollIndex !== null) {
+                adminData.newsScrollItems[editingNewsScrollIndex].text = text;
+                showStatus('소식이 수정되었습니다.');
+            } else {
+                adminData.newsScrollItems.push({
+                    id: Date.now(),
+                    text: text
+                });
+                showStatus('소식이 추가되었습니다.');
+            }
+            
+            saveData();
+            renderNewsScrollItems();
+            closeNewsScrollModal();
+        }
+        
+        function renderNewsScrollItems() {
+            const container = document.getElementById('newsScrollList');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            if (!adminData.newsScrollItems || adminData.newsScrollItems.length === 0) {
+                container.innerHTML = '<p style="color: #999;">추가된 소식이 없습니다.</p>';
+                return;
+            }
+            
+            adminData.newsScrollItems.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.style.cssText = 'margin-bottom: 15px; padding: 15px; background: white; border: 1px solid #ddd; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;';
+                div.innerHTML = `
+                    <div style="flex: 1; padding-right: 15px;">
+                        <p style="margin: 0; color: #333; font-size: 0.95rem; line-height: 1.6;">${item.text}</p>
+                    </div>
+                    <div style="display: flex; gap: 5px;">
+                        <button onclick="openNewsScrollModal(${index})" style="background: #2C5F8D; color: white; padding: 8px 16px; font-size: 0.9rem; border: none; border-radius: 5px; cursor: pointer;">수정</button>
+                        <button onclick="deleteNewsScrollItem(${index})" style="background: #dc3545; color: white; padding: 8px 16px; font-size: 0.9rem; border: none; border-radius: 5px; cursor: pointer;">삭제</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        function deleteNewsScrollItem(index) {
+            if (!confirm('이 소식을 삭제하시겠습니까?')) return;
+            
+            adminData.newsScrollItems.splice(index, 1);
+            saveData();
+            renderNewsScrollItems();
+            showStatus('소식이 삭제되었습니다.');
         }
         
         function resetAll() {

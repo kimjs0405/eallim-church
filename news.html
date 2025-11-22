@@ -294,7 +294,7 @@
         let allNews = [];
         let filteredNews = [];
         let currentFilter = 'all';
-        let currentPage = 1;
+        let newsCurrentPage = 1;
         const newsPerPage = 10;
 
         // 게시판 API를 사용하여 공지사항 로드
@@ -328,7 +328,7 @@
 
         function filterNews(category) {
             currentFilter = category;
-            currentPage = 1;
+            newsCurrentPage = 1;
             
             // 필터 버튼 활성화
             document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -357,7 +357,7 @@
             
             // 페이지네이션
             const totalPages = Math.ceil(filteredNews.length / newsPerPage);
-            const start = (currentPage - 1) * newsPerPage;
+            const start = (newsCurrentPage - 1) * newsPerPage;
             const end = start + newsPerPage;
             const pageNews = filteredNews.slice(start, end);
             
@@ -398,14 +398,14 @@
             
             let html = '';
             for (let i = 1; i <= totalPages; i++) {
-                html += `<button class="${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+                html += `<button class="${i === newsCurrentPage ? 'active' : ''}" onclick="goToNewsPage(${i})">${i}</button>`;
             }
             
             container.innerHTML = html;
         }
 
-        function goToPage(page) {
-            currentPage = page;
+        function goToNewsPage(page) {
+            newsCurrentPage = page;
             renderNews();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }

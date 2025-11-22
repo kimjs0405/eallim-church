@@ -805,6 +805,9 @@ window.addEventListener('load', async () => {
     await loadBulletins();
     await loadAlbums();
     
+    // 교회소식 바 로드
+    await loadNewsScrollItems();
+    
     // 모달 외부 클릭시 닫기
     window.onclick = function(event) {
         const loginModal = document.getElementById('adminLoginModal');
@@ -858,6 +861,95 @@ if (document.querySelector('section[id]')) {
 }
 
 console.log('엘림교회 홈페이지가 로드되었습니다.');
+
+// 교회소식 스크롤 기능
+let currentNewsIndex = 0;
+let newsItems = [];
+
+// 교회소식 데이터 로드
+async function loadNewsScrollItems() {
+    const container = document.getElementById('newsScrollContent');
+    if (!container) return;
+    
+    const STORAGE_KEY = 'elim-admin-data';
+    const adminData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"newsScrollItems":[]}');
+    
+    const items = adminData.newsScrollItems || [];
+    
+    if (items.length === 0) {
+        // 기본값 설정
+        container.innerHTML = `
+            <div class="news-scroll-item active">교회소식을 관리자 페이지에서 추가해주세요.</div>
+        `;
+        newsItems = container.querySelectorAll('.news-scroll-item');
+        return;
+    }
+    
+    container.innerHTML = '';
+    items.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'news-scroll-item';
+        if (index === 0) div.classList.add('active');
+        div.textContent = item.text;
+        container.appendChild(div);
+    });
+    
+    newsItems = container.querySelectorAll('.news-scroll-item');
+    
+    if (newsItems.length > 0) {
+        initNewsScroll();
+    }
+}
+
+function initNewsScroll() {
+    if (newsItems.length === 0) return;
+    
+    // 첫 번째 항목 활성화
+    if (newsItems[0]) {
+        newsItems[0].classList.add('active');
+    }
+    
+    // 자동 스크롤 (5초마다)
+    if (window.newsScrollInterval) {
+        clearInterval(window.newsScrollInterval);
+    }
+    
+    window.newsScrollInterval = setInterval(() => {
+        if (newsItems.length === 0) return;
+        
+        if (newsItems[currentNewsIndex]) {
+            newsItems[currentNewsIndex].classList.remove('active');
+        }
+        currentNewsIndex = (currentNewsIndex + 1) % newsItems.length;
+        if (newsItems[currentNewsIndex]) {
+            newsItems[currentNewsIndex].classList.add('active');
+        }
+    }, 5000);
+}
+
+// 수동 스크롤 함수
+function scrollNews(direction) {
+    if (newsItems.length === 0) return;
+    
+    if (newsItems[currentNewsIndex]) {
+        newsItems[currentNewsIndex].classList.remove('active');
+    }
+    
+    if (direction === 'up') {
+        currentNewsIndex = (currentNewsIndex - 1 + newsItems.length) % newsItems.length;
+    } else {
+        currentNewsIndex = (currentNewsIndex + 1) % newsItems.length;
+    }
+    
+    if (newsItems[currentNewsIndex]) {
+        newsItems[currentNewsIndex].classList.add('active');
+    }
+}
+
+// 페이지 로드시 초기화
+if (document.querySelector('.news-scroll-content')) {
+    loadNewsScrollItems();
+}
 
 // YouTube 설교영상 관련
 // RSS에서 비디오 ID 추출 함수
