@@ -454,6 +454,7 @@
             renderVideos();
             await loadAlbums();
             await loadBulletins();
+            await loadNewsScrollItems();
             renderNewsScrollItems();
             
             // 모달 외부 클릭시 닫기
@@ -1268,7 +1269,7 @@
             document.getElementById('newsScrollForm').reset();
         }
         
-        function saveNewsScroll(event) {
+        async function saveNewsScroll(event) {
             event.preventDefault();
             
             const text = document.getElementById('newsScrollText').value.trim();
@@ -1278,24 +1279,69 @@
                 return;
             }
             
-            if (!adminData.newsScrollItems) {
-                adminData.newsScrollItems = [];
+            try {
+                if (editingNewsScrollIndex !== null) {
+                    // 수정
+                    const item = adminData.newsScrollItems[editingNewsScrollIndex];
+                    const result = await newsScrollAPI.updateNewsScrollItem(item.id, text);
+                    if (result && result.error) {
+                        alert('오류: ' + result.error);
+                        return;
+                    }
+                    // localStorage에도 저장
+                    adminData.newsScrollItems[editingNewsScrollIndex].text = text;
+                    saveData();
+                    showStatus('소식이 수정되었습니다.');
+                } else {
+                    // 새로 추가
+                    const result = await newsScrollAPI.createNewsScrollItem(text);
+                    if (result && result.error) {
+                        alert('오류: ' + result.error);
+                        return;
+                    }
+                    if (!adminData.newsScrollItems) {
+                        adminData.newsScrollItems = [];
+                    }
+                    if (result && result.item) {
+                        adminData.newsScrollItems.push({
+                            id: result.item.id,
+                            text: result.item.text || text
+                        });
+                    } else {
+                        adminData.newsScrollItems.push({
+                            id: Date.now(),
+                            text: text
+                        });
+                    }
+                    saveData();
+                    showStatus('소식이 추가되었습니다.');
+                }
+                
+                await loadNewsScrollItems();
+                renderNewsScrollItems();
+                closeNewsScrollModal();
+            } catch (error) {
+                console.log('API 저장 실패, localStorage로 폴백:', error);
+                // 폴백: localStorage 사용
+                if (!adminData.newsScrollItems) {
+                    adminData.newsScrollItems = [];
+                }
+                
+                if (editingNewsScrollIndex !== null) {
+                    adminData.newsScrollItems[editingNewsScrollIndex].text = text;
+                    showStatus('소식이 수정되었습니다. (로컬 저장소에만 저장됨)');
+                } else {
+                    adminData.newsScrollItems.push({
+                        id: Date.now(),
+                        text: text
+                    });
+                    showStatus('소식이 추가되었습니다. (로컬 저장소에만 저장됨)');
+                }
+                
+                saveData();
+                renderNewsScrollItems();
+                closeNewsScrollModal();
             }
-            
-            if (editingNewsScrollIndex !== null) {
-                adminData.newsScrollItems[editingNewsScrollIndex].text = text;
-                showStatus('소식이 수정되었습니다.');
-            } else {
-                adminData.newsScrollItems.push({
-                    id: Date.now(),
-                    text: text
-                });
-                showStatus('소식이 추가되었습니다.');
-            }
-            
-            saveData();
-            renderNewsScrollItems();
-            closeNewsScrollModal();
         }
         
         function renderNewsScrollItems() {
@@ -1324,13 +1370,52 @@
             });
         }
         
-        function deleteNewsScrollItem(index) {
+        async function deleteNewsScrollItem(index) {
             if (!confirm('이 소식을 삭제하시겠습니까?')) return;
             
-            adminData.newsScrollItems.splice(index, 1);
-            saveData();
-            renderNewsScrollItems();
-            showStatus('소식이 삭제되었습니다.');
+            try {
+                const item = adminData.newsScrollItems[index];
+                await newsScrollAPI.deleteNewsScrollItem(item.id);
+                adminData.newsScrollItems.splice(index, 1);
+                saveData();
+                renderNewsScrollItems();
+                showStatus('소식이 삭제되었습니다.');
+            } catch (error) {
+                console.log('API 삭제 실패, localStorage로 폴백:', error);
+                adminData.newsScrollItems.splice(index, 1);
+                saveData();
+                renderNewsScrollItems();
+                showStatus('소식이 삭제되었습니다.');
+            }
+        }
+        
+        async function loadNewsScrollItems() {
+            try {
+                const result = await newsScrollAPI.getNewsScrollItems();
+                if (result && result.length > 0) {
+                    adminData.newsScrollItems = result.map(item => ({
+                        id: item.id,
+                        text: item.text
+                    }));
+                    saveData();
+                } else {
+                    // API가 빈 배열을 반환한 경우, localStorage 확인
+                    const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+                    if (savedData.newsScrollItems && savedData.newsScrollItems.length > 0) {
+                        adminData.newsScrollItems = savedData.newsScrollItems;
+                    } else if (!adminData.newsScrollItems) {
+                        adminData.newsScrollItems = [];
+                    }
+                }
+            } catch (error) {
+                console.error('API 로드 실패, localStorage 사용:', error);
+                const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+                if (savedData.newsScrollItems && savedData.newsScrollItems.length > 0) {
+                    adminData.newsScrollItems = savedData.newsScrollItems;
+                } else if (!adminData.newsScrollItems) {
+                    adminData.newsScrollItems = [];
+                }
+            }
         }
         
         function resetAll() {

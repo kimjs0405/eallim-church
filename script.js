@@ -871,33 +871,70 @@ async function loadNewsScrollItems() {
     const container = document.getElementById('newsScrollContent');
     if (!container) return;
     
-    const STORAGE_KEY = 'elim-admin-data';
-    const adminData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"newsScrollItems":[]}');
-    
-    const items = adminData.newsScrollItems || [];
-    
-    if (items.length === 0) {
-        // 기본값 설정
-        container.innerHTML = `
-            <div class="news-scroll-item active">교회소식을 관리자 페이지에서 추가해주세요.</div>
-        `;
+    try {
+        // API에서 데이터 로드
+        const result = await newsScrollAPI.getNewsScrollItems();
+        let items = result || [];
+        
+        // API에서 데이터가 없거나 빈 배열이면 localStorage 확인
+        if (!items || items.length === 0) {
+            const STORAGE_KEY = 'elim-admin-data';
+            const adminData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"newsScrollItems":[]}');
+            items = adminData.newsScrollItems || [];
+        }
+        
+        if (items.length === 0) {
+            // 기본값 설정
+            container.innerHTML = `
+                <div class="news-scroll-item active">교회소식을 관리자 페이지에서 추가해주세요.</div>
+            `;
+            newsItems = container.querySelectorAll('.news-scroll-item');
+            return;
+        }
+        
+        container.innerHTML = '';
+        items.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'news-scroll-item';
+            if (index === 0) div.classList.add('active');
+            div.textContent = item.text;
+            container.appendChild(div);
+        });
+        
         newsItems = container.querySelectorAll('.news-scroll-item');
-        return;
-    }
-    
-    container.innerHTML = '';
-    items.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = 'news-scroll-item';
-        if (index === 0) div.classList.add('active');
-        div.textContent = item.text;
-        container.appendChild(div);
-    });
-    
-    newsItems = container.querySelectorAll('.news-scroll-item');
-    
-    if (newsItems.length > 0) {
-        initNewsScroll();
+        
+        if (newsItems.length > 0) {
+            initNewsScroll();
+        }
+    } catch (error) {
+        console.error('교회소식 로드 실패:', error);
+        // 폴백: localStorage 사용
+        const STORAGE_KEY = 'elim-admin-data';
+        const adminData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"newsScrollItems":[]}');
+        const items = adminData.newsScrollItems || [];
+        
+        if (items.length === 0) {
+            container.innerHTML = `
+                <div class="news-scroll-item active">교회소식을 관리자 페이지에서 추가해주세요.</div>
+            `;
+            newsItems = container.querySelectorAll('.news-scroll-item');
+            return;
+        }
+        
+        container.innerHTML = '';
+        items.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'news-scroll-item';
+            if (index === 0) div.classList.add('active');
+            div.textContent = item.text;
+            container.appendChild(div);
+        });
+        
+        newsItems = container.querySelectorAll('.news-scroll-item');
+        
+        if (newsItems.length > 0) {
+            initNewsScroll();
+        }
     }
 }
 

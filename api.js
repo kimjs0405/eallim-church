@@ -152,3 +152,36 @@ const albumAPI = {
   },
 };
 
+// 교회소식 바 API
+const newsScrollAPI = {
+  // 교회소식 목록 조회
+  async getNewsScrollItems() {
+    try {
+      const result = await apiCall('/news-scroll', 'GET');
+      return result.items || [];
+    } catch (error) {
+      console.error('교회소식 API 호출 실패:', error);
+      return [];
+    }
+  },
+  
+  // 교회소식 생성
+  async createNewsScrollItem(text) {
+    return await apiCall('/news-scroll', 'POST', {
+      text,
+    });
+  },
+  
+  // 교회소식 수정
+  async updateNewsScrollItem(itemId, text) {
+    return await apiCall(`/news-scroll/${itemId}`, 'PUT', {
+      text,
+    });
+  },
+  
+  // 교회소식 삭제
+  async deleteNewsScrollItem(itemId) {
+    return await apiCall(`/news-scroll/${itemId}`, 'DELETE');
+  },
+};
+
