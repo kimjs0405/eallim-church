@@ -771,21 +771,34 @@
                     showStatus('주보가 수정되었습니다.');
                 } else {
                     // 새로 추가
-                    await bulletinAPI.createBulletin(title, date, content, finalImageUrl);
-                    // localStorage에도 저장
+                    const result = await bulletinAPI.createBulletin(title, date, content, finalImageUrl);
+                    // API에서 반환된 데이터를 사용 (ID가 올바르게 설정됨)
                     if (!adminData.bulletins) {
                         adminData.bulletins = [];
                     }
-                    adminData.bulletins.push({
-                        id: Date.now(),
-                        title: title,
-                        date: date,
-                        content: content,
-                        imageUrl: finalImageUrl
-                    });
+                    if (result && result.bulletin) {
+                        // API에서 반환된 주보 데이터 사용
+                        adminData.bulletins.push({
+                            id: result.bulletin.id,
+                            title: result.bulletin.title,
+                            date: result.bulletin.date,
+                            content: result.bulletin.content || '',
+                            imageUrl: result.bulletin.image_url || result.bulletin.imageUrl || finalImageUrl
+                        });
+                    } else {
+                        // 폴백: 직접 추가
+                        adminData.bulletins.push({
+                            id: Date.now(),
+                            title: title,
+                            date: date,
+                            content: content,
+                            imageUrl: finalImageUrl
+                        });
+                    }
                     saveData();
                     showStatus('주보가 추가되었습니다.');
                 }
+                // 데이터 새로고침 (API에서 최신 데이터 가져오기)
                 await loadBulletins();
                 closeBulletinModal();
             } catch (error) {
@@ -822,18 +835,35 @@
             try {
                 const result = await bulletinAPI.getBulletins();
                 if (result && result.length > 0) {
+                    // API에서 데이터를 성공적으로 불러온 경우
                     adminData.bulletins = result.map(b => ({
                         id: b.id,
                         title: b.title,
                         date: b.date,
                         content: b.content,
-                        imageUrl: b.image_url
+                        imageUrl: b.image_url || b.imageUrl
                     }));
                     saveData();
+                } else {
+                    // API가 빈 배열을 반환한 경우, localStorage 확인
+                    const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+                    if (savedData.bulletins && savedData.bulletins.length > 0) {
+                        adminData.bulletins = savedData.bulletins;
+                        console.log('API에서 데이터가 없어 localStorage 사용');
+                    } else if (!adminData.bulletins) {
+                        adminData.bulletins = [];
+                    }
                 }
                 renderBulletins();
             } catch (error) {
-                console.log('API 로드 실패, localStorage 사용:', error);
+                console.error('API 로드 실패, localStorage 사용:', error);
+                // API 실패 시 localStorage에서 불러오기
+                const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+                if (savedData.bulletins && savedData.bulletins.length > 0) {
+                    adminData.bulletins = savedData.bulletins;
+                } else if (!adminData.bulletins) {
+                    adminData.bulletins = [];
+                }
                 renderBulletins();
             }
         }
