@@ -179,25 +179,10 @@ async function hashString(str) {
 
 // 초기 admin 설정 (처음 한 번만 실행)
 async function initAdmin() {
+    // 환경 변수에서 관리자 정보를 가져오므로 기본값 없음
+    // localStorage는 API 로그인 실패 시에만 사용 (환경 변수 기반)
     const adminData = localStorage.getItem(ADMIN_STORAGE_KEY);
-    if (!adminData) {
-        // 기본 admin: eallim123 / eallim321@ (해시로 저장)
-        const defaultIdHash = await hashString('eallim123');
-        const defaultPwHash = await hashString('eallim321@');
-        localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify({
-            idHash: defaultIdHash,
-            pwHash: defaultPwHash
-        }));
-    } else {
-        // 기존 데이터가 있어도 새 계정으로 업데이트 (선택사항)
-        // 주석 해제하면 기존 계정을 새 계정으로 덮어씁니다
-        // const defaultIdHash = await hashString('eallim123');
-        // const defaultPwHash = await hashString('eallim321@');
-        // localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify({
-        //     idHash: defaultIdHash,
-        //     pwHash: defaultPwHash
-        // }));
-    }
+    // 기본값 하드코딩 제거 - 보안상 환경 변수만 사용
 }
 
 // 관리자 로그인 확인

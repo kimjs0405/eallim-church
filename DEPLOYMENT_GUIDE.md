@@ -86,8 +86,8 @@ git push -u origin main
 GITHUB_TOKEN = ghp_xxxxxxxxxxxxxxxxxxxx
 GITHUB_REPO = username/elim-church
 GITHUB_BRANCH = main
-ADMIN_ID = eallim123
-ADMIN_PASSWORD = eallim321@
+ADMIN_ID = your-admin-id
+ADMIN_PASSWORD = your-admin-password
 ```
 
 8. "Deploy site" 클릭
@@ -103,19 +103,31 @@ ADMIN_PASSWORD = eallim321@
 
 ### 5단계: 환경 변수 설정
 
-1. Netlify 대시보드 → Site settings → Environment variables
-2. 다음 변수 추가:
+**📖 상세 가이드:** 초보자도 쉽게 따라할 수 있는 **자세한 단계별 가이드**는 [`NETLIFY_ENV_SETUP.md`](./NETLIFY_ENV_SETUP.md) 파일을 참고하세요!
 
-| 변수 이름 | 값 | 설명 |
-|---------|-----|------|
-| `GITHUB_TOKEN` | GitHub Personal Access Token | `ghp_xxxxxxxxxxxxxxxxxxxx` |
-| `GITHUB_REPO` | 저장소 이름 | 형식: `username/elim-church` |
-| `GITHUB_BRANCH` | 브랜치 이름 | 기본: `main` |
-| `ADMIN_ID` | 관리자 아이디 | 기본: `eallim123` |
-| `ADMIN_PASSWORD` | 관리자 비밀번호 | 기본: `eallim321@` |
+**빠른 요약:**
 
-3. "Save" 클릭
-4. "Trigger deploy" → "Clear cache and deploy site" 클릭 (재배포)
+1. **환경 변수 페이지 접근:**
+   - 사이트 대시보드 → "Site configuration" → "Environment variables"
+   - 또는 직접 URL: `https://app.netlify.com/sites/사이트이름/configuration/env`
+
+2. **필요한 환경 변수:**
+
+| 변수 이름 | 값 예시 | 비밀 여부 | Deploy Context 설정 |
+|---------|--------|----------|-------------------|
+| `GITHUB_TOKEN` | `ghp_xxxxxxxxxxxxxxxxxxxx` | ✅ 비밀 | "Different value for each deploy context" 선택 후, **모든 context에 동일한 값 입력** |
+| `GITHUB_REPO` | `username/elim-church` | ❌ 공개 | "Same value for all deploy contexts" 선택 |
+| `GITHUB_BRANCH` | `main` | ❌ 공개 | "Same value for all deploy contexts" 선택 |
+| `ADMIN_ID` | `your-admin-id` | ✅ 비밀 | "Different value for each deploy context" 선택 후, **모든 context에 동일한 값 입력** |
+| `ADMIN_PASSWORD` | `your-admin-password` | ✅ 비밀 | "Different value for each deploy context" 선택 후, **모든 context에 동일한 값 입력** |
+
+3. **"Contains secret values" 체크:**
+   - `GITHUB_TOKEN`, `ADMIN_ID`, `ADMIN_PASSWORD`는 ✅ 체크
+   - 체크하면 자동으로 "Different value for each deploy context"가 선택됨
+   - **각 context (Production, Deploy Previews, Branch deploys, Local development)에 동일한 값 입력**
+
+4. **재배포:**
+   - "Trigger deploy" → "Clear cache and deploy site" 클릭
 
 **참고:** 프로젝트에 이미 빈 JSON 파일들이 포함되어 있어서, GitHub에 푸시하면 자동으로 데이터 저장소가 준비됩니다! (`posts-data.json`, `bulletins-data.json`, `albums-data.json`)
 
@@ -135,8 +147,8 @@ ADMIN_PASSWORD = eallim321@
 2. 사이트 URL 클릭하여 접속
 3. 관리자 페이지(`/admin.html`) 접속
 4. 로그인 테스트:
-   - 아이디: `eallim123`
-   - 비밀번호: `eallim321@`
+   - 아이디: 환경 변수에 설정한 값
+   - 비밀번호: 환경 변수에 설정한 값
 5. 게시물 작성/수정/삭제 테스트
 6. Supabase 대시보드에서 데이터 확인
 

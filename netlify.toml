@@ -4,6 +4,11 @@
   # 퍼블리시 디렉토리 (현재 폴더가 루트)
   publish = "."
 
+# 비밀 스캔 설정: 문서 파일들은 스캔에서 제외
+# (문서에는 예시 값만 포함되어 있음)
+[build.environment]
+  SECRETS_SCAN_OMIT_PATHS = "*.md,README*.md,DEPLOYMENT*.md,NETLIFY*.md,github-setup.md,SUPABASE*.md"
+
 # SPA가 아니므로 리다이렉트는 필요 없음
 # 각 HTML 파일이 독립적으로 작동함
 

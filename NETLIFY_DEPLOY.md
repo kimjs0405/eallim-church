@@ -49,8 +49,8 @@ Netlify 대시보드 → Site settings → Environment variables에서 다음 �
 - `GITHUB_TOKEN`: GitHub Personal Access Token
 - `GITHUB_REPO`: 저장소 이름 (형식: `사용자명/저장소명`, 예: `username/elim-church`)
 - `GITHUB_BRANCH`: 브랜치 이름 (기본: `main`)
-- `ADMIN_ID`: 관리자 아이디 (기본: eallim123)
-- `ADMIN_PASSWORD`: 관리자 비밀번호 (기본: eallim321@)
+- `ADMIN_ID`: 관리자 아이디 (예: `admin123`)
+- `ADMIN_PASSWORD`: 관리자 비밀번호 (예: `SecurePass123!`)
 
 ### 설정 방법
 1. Netlify 대시보드 → Site settings → Environment variables

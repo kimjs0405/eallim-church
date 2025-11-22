@@ -94,8 +94,8 @@ CREATE POLICY "Public read access" ON albums FOR SELECT USING (true);
 |---------|-----|------|
 | `SUPABASE_URL` | `https://xxxxx.supabase.co` | Supabase 프로젝트 URL |
 | `SUPABASE_KEY` | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` | Supabase service_role key |
-| `ADMIN_ID` | `eallim123` | 관리자 아이디 (변경 가능) |
-| `ADMIN_PASSWORD` | `eallim321@` | 관리자 비밀번호 (변경 가능) |
+| `ADMIN_ID` | `your-admin-id` | 관리자 아이디 (변경 가능) |
+| `ADMIN_PASSWORD` | `your-admin-password` | 관리자 비밀번호 (변경 가능) |
 
 ### 설정 방법
 

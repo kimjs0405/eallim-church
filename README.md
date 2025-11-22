@@ -51,8 +51,8 @@ Netlify 대시보드에서 다음 환경 변수를 설정하세요:
 - `GITHUB_TOKEN`: GitHub Personal Access Token
 - `GITHUB_REPO`: 저장소 이름 (형식: `username/elim-church`)
 - `GITHUB_BRANCH`: 브랜치 이름 (기본: `main`)
-- `ADMIN_ID`: 관리자 아이디 (기본: eallim123)
-- `ADMIN_PASSWORD`: 관리자 비밀번호 (기본: eallim321@)
+- `ADMIN_ID`: 관리자 아이디 (예: `admin123`)
+- `ADMIN_PASSWORD`: 관리자 비밀번호 (예: `SecurePass123!`)
 
 ### 5. 배포
 
@@ -73,8 +73,7 @@ npm run dev
 
 ### 관리자 로그인
 
-- 기본 아이디: `eallim123`
-- 기본 비밀번호: `eallim321@`
+- 환경 변수에 설정한 아이디와 비밀번호 사용
 - 로그인 후 게시판에서 글쓰기, 수정, 삭제 가능
 - 관리자 페이지(`admin.html`)에서 주보 및 앨범 관리 가능
 
