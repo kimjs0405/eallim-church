@@ -440,17 +440,32 @@ async function savePost() {
         if (editingPostIndex !== null) {
             // 수정
             const post = allPosts[editingPostIndex];
-            await boardAPI.updatePost(post.id, title, content);
+            const result = await boardAPI.updatePost(post.id, title, content);
+            if (result && result.error) {
+                alert('오류: ' + result.error);
+                return;
+            }
             alert('글이 수정되었습니다.');
         } else {
             // 새 글
-            await boardAPI.createPost(title, content);
+            const result = await boardAPI.createPost(title, content);
+            if (result && result.error) {
+                alert('오류: ' + result.error + '\n\nGitHub 설정을 확인하세요:\n- GITHUB_TOKEN\n- GITHUB_REPO\n- GITHUB_BRANCH');
+                console.error('게시글 생성 실패:', result);
+                return;
+            }
+            if (!result || !result.success) {
+                alert('게시글 저장에 실패했습니다. Netlify Functions 로그를 확인하세요.');
+                console.error('게시글 생성 실패:', result);
+                return;
+            }
             alert('글이 등록되었습니다.');
         }
         closeWriteModal();
         await renderBoardPosts();
     } catch (error) {
-        console.log('API 저장 실패, localStorage로 폴백:', error);
+        console.error('API 저장 실패:', error);
+        alert('게시글 저장에 실패했습니다: ' + (error.message || error) + '\n\n로컬 저장소에만 저장됩니다.');
         // 폴백: localStorage 사용
         const posts = await loadBoardPosts();
         
@@ -470,7 +485,7 @@ async function savePost() {
         saveBoardPosts(posts);
         closeWriteModal();
         await renderBoardPosts();
-        alert(editingPostIndex !== null ? '글이 수정되었습니다.' : '글이 등록되었습니다.');
+        alert(editingPostIndex !== null ? '글이 수정되었습니다. (로컬 저장소에만 저장됨)' : '글이 등록되었습니다. (로컬 저장소에만 저장됨)');
     }
 }
 

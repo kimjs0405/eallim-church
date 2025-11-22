@@ -26,13 +26,21 @@ async function apiCall(endpoint, method = 'GET', data = null) {
     const result = await response.json();
     
     if (!response.ok) {
-      throw new Error(result.error || 'API 호출 실패');
+      // 에러 응답도 result에 포함하여 반환
+      return {
+        success: false,
+        error: result.error || `API 호출 실패 (${response.status})`,
+        ...result
+      };
     }
     
     return result;
   } catch (error) {
     console.error('API Error:', error);
-    throw error;
+    return {
+      success: false,
+      error: error.message || '네트워크 오류가 발생했습니다.'
+    };
   }
 }
 
@@ -56,12 +64,17 @@ const boardAPI = {
   
   // 게시글 생성
   async createPost(title, content) {
-    return await apiCall('/posts', 'POST', {
+    const result = await apiCall('/posts', 'POST', {
       title,
       content,
       author: '관리자',
       date: Date.now(),
     });
+    // 에러가 있으면 그대로 반환
+    if (result && result.error) {
+      return result;
+    }
+    return result;
   },
   
   // 게시글 수정
