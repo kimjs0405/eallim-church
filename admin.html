@@ -307,6 +307,28 @@
                 </div>
             </div>
             
+            <!-- 게시글 작성/수정 모달 -->
+            <div id="boardPostModal" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 700px;">
+                    <span class="close" onclick="closeBoardPostModal()">&times;</span>
+                    <h2 id="boardPostModalTitle">새 게시글 작성</h2>
+                    <form id="boardPostForm" onsubmit="saveBoardPost(event)">
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">제목 *</label>
+                            <input type="text" id="boardPostTitle" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">내용 *</label>
+                            <textarea id="boardPostContent" required rows="10" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit; resize: vertical;"></textarea>
+                        </div>
+                        <div style="text-align: right; margin-top: 20px;">
+                            <button type="button" onclick="closeBoardPostModal()" class="btn-small" style="background: #6c757d; margin-right: 10px;">취소</button>
+                            <button type="submit" class="btn-small">저장</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
             <div class="admin-section">
                 <h2>기타 설정</h2>
                 <button onclick="resetAll()" class="btn-small" style="background: #dc3545; color: white;">모든 데이터 초기화</button>
@@ -418,6 +440,7 @@
                 }
             }
             
+            // 모달 외부 클릭시 닫기
             const boardModal = document.getElementById('boardPostModal');
             if (boardModal) {
                 window.onclick = function(event) {
@@ -426,6 +449,9 @@
                     }
                 }
             }
+            
+            // 게시판 게시글 로드
+            await loadBoardPosts();
         }
         
         function addNotice() {
@@ -1070,10 +1096,22 @@
         function openBoardPostModal(index = null) {
             editingBoardPostIndex = index;
             const modal = document.getElementById('boardPostModal');
+            if (!modal) {
+                console.error('boardPostModal을 찾을 수 없습니다.');
+                alert('모달을 찾을 수 없습니다. 페이지를 새로고침해주세요.');
+                return;
+            }
+            
             const form = document.getElementById('boardPostForm');
             const titleInput = document.getElementById('boardPostTitle');
             const contentInput = document.getElementById('boardPostContent');
             const modalTitle = document.getElementById('boardPostModalTitle');
+            
+            if (!form || !titleInput || !contentInput || !modalTitle) {
+                console.error('모달 요소를 찾을 수 없습니다.');
+                alert('모달 요소를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
+                return;
+            }
             
             // 폼 초기화
             form.reset();
@@ -1082,8 +1120,10 @@
                 // 수정 모드
                 modalTitle.textContent = '게시글 수정';
                 const post = allBoardPosts[index];
-                titleInput.value = post.title || '';
-                contentInput.value = post.content || '';
+                if (post) {
+                    titleInput.value = post.title || '';
+                    contentInput.value = post.content || '';
+                }
             } else {
                 // 새로 추가 모드
                 modalTitle.textContent = '새 게시글 작성';
