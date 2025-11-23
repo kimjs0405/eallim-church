@@ -212,8 +212,8 @@ const noticeAPI = {
   // 공지사항 생성
   async createNotice(title, content, author, category) {
     return await apiCall('/notices', 'POST', {
-      title,
-      content,
+      title: title || '',
+      content: content || '',
       author: author || '관리자',
       category: category || '공지',
     });
@@ -222,10 +222,10 @@ const noticeAPI = {
   // 공지사항 수정
   async updateNotice(noticeId, title, content, author, category) {
     return await apiCall(`/notices/${noticeId}`, 'PUT', {
-      title,
-      content,
-      author,
-      category,
+      title: title || '',
+      content: content || '',
+      author: author || '관리자',
+      category: category || '공지',
     });
   },
   

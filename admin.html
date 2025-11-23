@@ -1259,8 +1259,16 @@
         async function saveBoardPost(event) {
             event.preventDefault();
             
-            const title = document.getElementById('boardPostTitle').value.trim();
-            const content = document.getElementById('boardPostContent').value.trim();
+            const titleInput = document.getElementById('boardPostTitle');
+            const contentInput = document.getElementById('boardPostContent');
+            
+            if (!titleInput || !contentInput) {
+                alert('입력 필드를 찾을 수 없습니다.');
+                return;
+            }
+            
+            const title = titleInput.value.trim();
+            const content = contentInput.value.trim();
             
             if (!title || !content) {
                 alert('제목과 내용을 모두 입력해주세요.');
@@ -1271,15 +1279,23 @@
                 if (editingBoardPostIndex !== null) {
                     // 수정
                     const post = allBoardPosts[editingBoardPostIndex];
-                    const result = await boardAPI.updatePost(post.id, title, content);
+                    if (!post || !post.id) {
+                        alert('수정할 게시글을 찾을 수 없습니다.');
+                        return;
+                    }
+                    const result = await boardAPI.updatePost(post.id, title, content, post.author || '관리자');
                     if (result && result.error) {
                         alert('오류: ' + result.error);
+                        return;
+                    }
+                    if (!result || !result.success) {
+                        alert('게시글 수정에 실패했습니다.');
                         return;
                     }
                     showStatus('게시글이 수정되었습니다.');
                 } else {
                     // 새로 추가
-                    const result = await boardAPI.createPost(title, content);
+                    const result = await boardAPI.createPost(title, content, '관리자');
                     if (result && result.error) {
                         alert('오류: ' + result.error);
                         return;
@@ -1579,9 +1595,18 @@
         async function saveNotice(event) {
             event.preventDefault();
             
-            const title = document.getElementById('noticeTitle').value.trim();
-            const category = document.getElementById('noticeCategory').value;
-            const content = document.getElementById('noticeContent').value.trim();
+            const titleInput = document.getElementById('noticeTitle');
+            const categoryInput = document.getElementById('noticeCategory');
+            const contentInput = document.getElementById('noticeContent');
+            
+            if (!titleInput || !contentInput) {
+                alert('필수 입력 필드를 찾을 수 없습니다.');
+                return;
+            }
+            
+            const title = titleInput.value.trim();
+            const category = categoryInput ? (categoryInput.value || '공지') : '공지';
+            const content = contentInput.value.trim();
             
             if (!title || !content) {
                 alert('제목과 내용을 모두 입력해주세요.');
@@ -1592,6 +1617,10 @@
                 if (editingNoticeIndex !== null) {
                     // 수정
                     const notice = allNotices[editingNoticeIndex];
+                    if (!notice || !notice.id) {
+                        alert('수정할 공지사항을 찾을 수 없습니다.');
+                        return;
+                    }
                     const result = await noticeAPI.updateNotice(notice.id, title, content, '관리자', category);
                     if (result && result.error) {
                         alert('오류: ' + result.error);
@@ -1603,6 +1632,10 @@
                     const result = await noticeAPI.createNotice(title, content, '관리자', category);
                     if (result && result.error) {
                         alert('오류: ' + result.error);
+                        return;
+                    }
+                    if (!result || !result.success) {
+                        alert('공지사항 저장에 실패했습니다.');
                         return;
                     }
                     showStatus('공지사항이 추가되었습니다.');
