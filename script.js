@@ -848,18 +848,26 @@ window.addEventListener('load', async () => {
         // admin.html에서 저장한 채널 ID 확인
         const adminData = JSON.parse(localStorage.getItem('elim-admin-data') || '{}');
         // GitHub에서 YouTube 채널 ID 로드
+        // YouTube 채널 ID 로드 (GitHub API만 사용, localStorage 폴백 제거)
         let savedChannelId = '';
         try {
             const settings = await settingsAPI.getSettings();
             savedChannelId = settings.youtubeChannelId || '';
         } catch (error) {
             console.error('설정 로드 실패:', error);
-            // 폴백: localStorage 사용
-            savedChannelId = localStorage.getItem('youtubeChannelId') || '';
+            savedChannelId = '';
         }
         
         if (!savedChannelId) {
-            savedChannelId = 'UCqkvh5qCX3mmisUUz79O9Ng'; // 기본값
+            if (latestVideoContainer) {
+                latestVideoContainer.innerHTML = `
+                    <div class="loading-message">
+                        <p>⚠️ YouTube 채널 ID가 설정되지 않았습니다.</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">관리자 페이지에서 채널 ID를 설정해주세요.</p>
+                    </div>
+                `;
+            }
+            return;
         }
         
         const channelIdInput = document.getElementById('youtube-channel-id');
@@ -1367,10 +1375,19 @@ if (loadVideosBtn) {
             return;
         }
         
-        // 채널 ID를 localStorage에 저장
-        localStorage.setItem('youtubeChannelId', channelId);
-        
-        loadYouTubeVideos(channelId);
+        // 채널 ID를 GitHub에 저장
+        try {
+            const result = await settingsAPI.updateSettings(channelId);
+            if (result && result.error) {
+                alert('오류: ' + result.error);
+                return;
+            }
+            alert('YouTube 채널 ID가 저장되었습니다.');
+            loadYouTubeVideos(channelId);
+        } catch (error) {
+            console.error('채널 ID 저장 실패:', error);
+            alert('채널 ID 저장에 실패했습니다: ' + (error.message || error));
+        }
     });
 }
 

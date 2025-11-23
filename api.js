@@ -196,6 +196,45 @@ const newsScrollAPI = {
   },
 };
 
+// 공지사항 API
+const noticeAPI = {
+  // 공지사항 목록 조회
+  async getNotices() {
+    try {
+      const result = await apiCall('/notices', 'GET');
+      return result.notices || [];
+    } catch (error) {
+      console.error('공지사항 API 호출 실패:', error);
+      return [];
+    }
+  },
+  
+  // 공지사항 생성
+  async createNotice(title, content, author, category) {
+    return await apiCall('/notices', 'POST', {
+      title,
+      content,
+      author: author || '관리자',
+      category: category || '공지',
+    });
+  },
+  
+  // 공지사항 수정
+  async updateNotice(noticeId, title, content, author, category) {
+    return await apiCall(`/notices/${noticeId}`, 'PUT', {
+      title,
+      content,
+      author,
+      category,
+    });
+  },
+  
+  // 공지사항 삭제
+  async deleteNotice(noticeId) {
+    return await apiCall(`/notices/${noticeId}`, 'DELETE');
+  },
+};
+
 // 설정 API (YouTube 채널 ID 등)
 const settingsAPI = {
   // 설정 조회

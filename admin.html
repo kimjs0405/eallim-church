@@ -237,13 +237,22 @@
             <h2>관리 메뉴</h2>
             
             <div class="admin-section">
-                <h2>게시판 공지사항 관리</h2>
+                <h2>게시판 관리</h2>
                 <div style="margin-bottom: 15px;">
                     <input type="text" id="boardSearch" placeholder="게시글 검색..." style="width: 100%; max-width: 400px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px;" onkeyup="filterBoardPosts()">
                     <button onclick="openBoardPostModal()" class="btn-small" style="margin-right: 10px;">+ 새 게시글 작성</button>
                     <button onclick="loadBoardPosts()" class="btn-small" style="background: #6c757d;">새로고침</button>
                 </div>
                 <div id="boardPostList" style="margin-top: 15px;"></div>
+            </div>
+            
+            <div class="admin-section">
+                <h2>공지사항 관리</h2>
+                <div style="margin-bottom: 15px;">
+                    <button onclick="openNoticeModal()" class="btn-small" style="margin-right: 10px;">+ 새 공지사항 추가</button>
+                    <button onclick="loadNotices()" class="btn-small" style="background: #6c757d;">새로고침</button>
+                </div>
+                <div id="noticeList" style="margin-top: 15px;"></div>
             </div>
             
             <div class="admin-section">
@@ -356,6 +365,37 @@
                 </div>
             </div>
             
+            <!-- 공지사항 작성/수정 모달 -->
+            <div id="noticeModal" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 700px;">
+                    <span class="close" onclick="closeNoticeModal()">&times;</span>
+                    <h2 id="noticeModalTitle">새 공지사항 추가</h2>
+                    <form id="noticeForm" onsubmit="saveNotice(event)">
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">제목 *</label>
+                            <input type="text" id="noticeTitle" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">카테고리 *</label>
+                            <select id="noticeCategory" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                                <option value="공지">공지</option>
+                                <option value="이벤트">이벤트</option>
+                                <option value="예배">예배</option>
+                                <option value="교회활동">교회활동</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">내용 *</label>
+                            <textarea id="noticeContent" required rows="10" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit; resize: vertical;"></textarea>
+                        </div>
+                        <div style="text-align: right; margin-top: 20px;">
+                            <button type="button" onclick="closeNoticeModal()" class="btn-small" style="background: #6c757d; margin-right: 10px;">취소</button>
+                            <button type="submit" class="btn-small">저장</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
             <div class="admin-section">
                 <h2>기타 설정</h2>
                 <button onclick="resetAll()" class="btn-small" style="background: #dc3545; color: white;">모든 데이터 초기화</button>
@@ -447,18 +487,14 @@
         }
         
         async function loadData() {
-            // YouTube 채널 설정 로드
+            // YouTube 채널 설정 로드 (GitHub API만 사용)
             try {
                 const settings = await settingsAPI.getSettings();
                 const channelId = settings.youtubeChannelId || '';
                 document.getElementById('youtubeChannelId').value = channelId;
-                adminData.youtubeChannelId = channelId;
             } catch (error) {
                 console.error('설정 로드 실패:', error);
-                // 폴백: localStorage 사용
-                const savedChannelId = localStorage.getItem('youtubeChannelId') || adminData.youtubeChannelId || '';
-                document.getElementById('youtubeChannelId').value = savedChannelId;
-                adminData.youtubeChannelId = savedChannelId;
+                document.getElementById('youtubeChannelId').value = '';
             }
             
             // 영상 목록 로드
@@ -504,8 +540,21 @@
                 }
             }
             
+            // 공지사항 모달 외부 클릭시 닫기
+            const noticeModal = document.getElementById('noticeModal');
+            if (noticeModal) {
+                window.onclick = function(event) {
+                    if (event.target === noticeModal) {
+                        closeNoticeModal();
+                    }
+                }
+            }
+            
             // 게시판 게시글 로드
             await loadBoardPosts();
+            
+            // 공지사항 로드
+            await loadNotices();
         }
         
         function addNotice() {
@@ -578,18 +627,15 @@
             }
             
             try {
-                await settingsAPI.updateSettings(channelId);
-                adminData.youtubeChannelId = channelId;
-                // sermons.html에서도 사용할 수 있도록 별도로 저장 (폴백용)
-                localStorage.setItem('youtubeChannelId', channelId);
-                showStatus('YouTube 채널 ID가 저장되었습니다. 설교영상 페이지에서 자동으로 최신 영상이 표시됩니다.');
+                const result = await settingsAPI.updateSettings(channelId);
+                if (result && result.error) {
+                    alert('오류: ' + result.error);
+                    return;
+                }
+                showStatus('YouTube 채널 ID가 GitHub에 저장되었습니다. 모든 브라우저에서 동일하게 표시됩니다.');
             } catch (error) {
                 console.error('채널 ID 저장 실패:', error);
-                // 폴백: localStorage 사용
-                adminData.youtubeChannelId = channelId;
-                saveData();
-                localStorage.setItem('youtubeChannelId', channelId);
-                showStatus('YouTube 채널 ID가 저장되었습니다. (로컬 저장)');
+                alert('YouTube 채널 ID 저장에 실패했습니다: ' + (error.message || error) + '\n\nGitHub 설정을 확인하세요.');
             }
         }
         
@@ -1528,6 +1574,170 @@
                 } else if (!adminData.newsScrollItems) {
                     adminData.newsScrollItems = [];
                 }
+            }
+        }
+        
+        // 공지사항 관리
+        let allNotices = [];
+        let editingNoticeIndex = null;
+        
+        async function loadNotices() {
+            try {
+                const result = await noticeAPI.getNotices();
+                if (result && result.length > 0) {
+                    allNotices = result.map(notice => ({
+                        id: notice.id,
+                        title: notice.title,
+                        content: notice.content,
+                        author: notice.author || '관리자',
+                        category: notice.category || '공지',
+                        date: notice.created_at ? new Date(notice.created_at) : new Date(notice.date || Date.now())
+                    }));
+                } else {
+                    allNotices = [];
+                }
+                renderNotices();
+            } catch (error) {
+                console.error('공지사항 로드 실패:', error);
+                allNotices = [];
+                renderNotices();
+            }
+        }
+        
+        function renderNotices() {
+            const container = document.getElementById('noticeList');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            if (!allNotices || allNotices.length === 0) {
+                container.innerHTML = '<p style="color: #999;">추가된 공지사항이 없습니다.</p>';
+                return;
+            }
+            
+            // 날짜순 정렬 (최신순)
+            const sortedNotices = [...allNotices].sort((a, b) => b.date - a.date);
+            
+            sortedNotices.forEach((notice, index) => {
+                const originalIndex = allNotices.findIndex(n => n.id === notice.id);
+                const dateStr = notice.date.toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                const div = document.createElement('div');
+                div.style.cssText = 'margin-bottom: 15px; padding: 15px; background: white; border: 1px solid #ddd; border-radius: 5px;';
+                div.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 10px;">
+                        <div style="flex: 1;">
+                            <div style="margin-bottom: 8px;">
+                                <span style="background: #2C5F8D; color: white; padding: 3px 10px; border-radius: 3px; font-size: 0.85rem; margin-right: 10px;">${notice.category}</span>
+                                <strong>${notice.title}</strong>
+                            </div>
+                            <div style="margin-bottom: 8px; font-size: 0.9rem; color: #666;">
+                                📅 ${dateStr} | 👤 ${notice.author}
+                            </div>
+                            <div style="font-size: 0.9rem; color: #555;">
+                                ${notice.content.substring(0, 100)}${notice.content.length > 100 ? '...' : ''}
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 5px;">
+                            <button onclick="openNoticeModal(${originalIndex})" style="background: #2C5F8D; color: white; padding: 8px 16px; font-size: 0.9rem; border: none; border-radius: 5px; cursor: pointer;">수정</button>
+                            <button onclick="deleteNotice(${originalIndex})" style="background: #dc3545; color: white; padding: 8px 16px; font-size: 0.9rem; border: none; border-radius: 5px; cursor: pointer;">삭제</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        function openNoticeModal(index = null) {
+            editingNoticeIndex = index;
+            const modal = document.getElementById('noticeModal');
+            if (!modal) return;
+            
+            const form = document.getElementById('noticeForm');
+            const titleInput = document.getElementById('noticeTitle');
+            const categoryInput = document.getElementById('noticeCategory');
+            const contentInput = document.getElementById('noticeContent');
+            const modalTitle = document.getElementById('noticeModalTitle');
+            
+            form.reset();
+            
+            if (index !== null) {
+                modalTitle.textContent = '공지사항 수정';
+                const notice = allNotices[index];
+                if (notice) {
+                    titleInput.value = notice.title || '';
+                    categoryInput.value = notice.category || '공지';
+                    contentInput.value = notice.content || '';
+                }
+            } else {
+                modalTitle.textContent = '새 공지사항 추가';
+            }
+            
+            modal.style.display = 'flex';
+        }
+        
+        function closeNoticeModal() {
+            const modal = document.getElementById('noticeModal');
+            if (modal) modal.style.display = 'none';
+            editingNoticeIndex = null;
+            document.getElementById('noticeForm').reset();
+        }
+        
+        async function saveNotice(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('noticeTitle').value.trim();
+            const category = document.getElementById('noticeCategory').value;
+            const content = document.getElementById('noticeContent').value.trim();
+            
+            if (!title || !content) {
+                alert('제목과 내용을 모두 입력해주세요.');
+                return;
+            }
+            
+            try {
+                if (editingNoticeIndex !== null) {
+                    // 수정
+                    const notice = allNotices[editingNoticeIndex];
+                    const result = await noticeAPI.updateNotice(notice.id, title, content, '관리자', category);
+                    if (result && result.error) {
+                        alert('오류: ' + result.error);
+                        return;
+                    }
+                    showStatus('공지사항이 수정되었습니다.');
+                } else {
+                    // 새로 추가
+                    const result = await noticeAPI.createNotice(title, content, '관리자', category);
+                    if (result && result.error) {
+                        alert('오류: ' + result.error);
+                        return;
+                    }
+                    showStatus('공지사항이 추가되었습니다.');
+                }
+                
+                await loadNotices();
+                closeNoticeModal();
+            } catch (error) {
+                console.error('공지사항 저장 실패:', error);
+                alert('공지사항 저장에 실패했습니다: ' + (error.message || error));
+            }
+        }
+        
+        async function deleteNotice(index) {
+            if (!confirm('이 공지사항을 삭제하시겠습니까?')) return;
+            
+            try {
+                const notice = allNotices[index];
+                await noticeAPI.deleteNotice(notice.id);
+                allNotices.splice(index, 1);
+                renderNotices();
+                showStatus('공지사항이 삭제되었습니다.');
+            } catch (error) {
+                console.error('공지사항 삭제 실패:', error);
+                alert('공지사항 삭제에 실패했습니다: ' + (error.message || error));
             }
         }
         

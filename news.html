@@ -252,22 +252,22 @@
         let newsCurrentPage = 1;
         const newsPerPage = 10;
 
-        // 게시판 API를 사용하여 공지사항 로드
+        // 공지사항 API를 사용하여 공지사항 로드
         async function loadNews() {
             try {
                 const container = document.getElementById('newsList');
                 container.innerHTML = '<div class="loading-message"><p>공지사항을 불러오는 중...</p></div>';
                 
-                const posts = await boardAPI.getPosts();
+                const notices = await noticeAPI.getNotices();
                 
-                // 게시글을 공지사항 형식으로 변환
-                allNews = posts.map(post => ({
-                    id: post.id,
-                    title: post.title,
-                    content: post.content,
-                    author: post.author || '관리자',
-                    date: post.created_at ? new Date(post.created_at) : new Date(post.date || Date.now()),
-                    category: '공지' // 기본 카테고리
+                // 공지사항 형식으로 변환
+                allNews = notices.map(notice => ({
+                    id: notice.id,
+                    title: notice.title,
+                    content: notice.content,
+                    author: notice.author || '관리자',
+                    date: notice.created_at ? new Date(notice.created_at) : new Date(notice.date || Date.now()),
+                    category: notice.category || '공지'
                 }));
                 
                 // 날짜순 정렬 (최신순)
