@@ -129,6 +129,11 @@ const bulletinAPI = {
   async deleteBulletin(bulletinId) {
     return await apiCall(`/bulletins/${bulletinId}`, 'DELETE');
   },
+  
+  // 주보광고 초기화
+  async resetBulletins() {
+    return await apiCall('/bulletins/reset', 'POST');
+  },
 };
 
 // 앨범 API
@@ -149,6 +154,11 @@ const albumAPI = {
   // 앨범 삭제
   async deleteAlbum(albumId) {
     return await apiCall(`/albums/${albumId}`, 'DELETE');
+  },
+  
+  // 행사앨범 초기화
+  async resetAlbums() {
+    return await apiCall('/albums/reset', 'POST');
   },
 };
 
