@@ -447,9 +447,6 @@
         }
         
         async function loadData() {
-            // 공지사항 로드
-            renderNotices();
-            
             // YouTube 채널 설정 로드
             try {
                 const settings = await settingsAPI.getSettings();
@@ -467,8 +464,13 @@
             // 영상 목록 로드
             await loadVideos();
             
+            // 앨범 로드
             await loadAlbums();
+            
+            // 주보 로드
             await loadBulletins();
+            
+            // 교회소식 바 로드
             await loadNewsScrollItems();
             renderNewsScrollItems();
             
@@ -524,6 +526,13 @@
         
         function renderNotices() {
             const container = document.getElementById('noticeList');
+            if (!container) return; // 요소가 없으면 함수 종료
+            
+            if (!adminData.notices || adminData.notices.length === 0) {
+                container.innerHTML = '<p style="color: #999;">추가된 공지사항이 없습니다.</p>';
+                return;
+            }
+            
             container.innerHTML = '';
             adminData.notices.forEach((notice, index) => {
                 const div = document.createElement('div');
