@@ -11,6 +11,25 @@
         body {
             font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
         }
+        
+        .news-page-header {
+            background: linear-gradient(135deg, #2C5F8D 0%, #1E4263 100%);
+            color: white;
+            padding: 100px 0 60px;
+            margin-top: 70px;
+            text-align: center;
+        }
+        
+        .news-page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .news-page-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
@@ -50,32 +69,37 @@
         </nav>
     </header>
 
-    <!-- 교회 소개 -->
-    <section id="about" class="section" style="margin-top: 70px;">
+    <!-- 교회 소개 배너 -->
+    <section class="news-page-header">
         <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">교회 소개</h2>
-                <div class="section-line"></div>
-                <p class="section-subtitle">엘림교회는 하나님의 말씀을 따라가며, 신앙공동체를 세워가고 있습니다.</p>
-            </div>
-            <div class="about-content">
-                <div class="about-image">
-                    <img src="https://images.unsplash.com/photo-1597676600669-ff20a6c94169?w=800" alt="교회 건물">
+            <h1>교회 소개</h1>
+            <p>엘림교회는 하나님의 말씀을 따라가며, 신앙공동체를 세워가고 있습니다.</p>
+        </div>
+    </section>
+
+    <!-- 담임목사님 인사말 -->
+    <section id="about" class="section">
+        <div class="container">
+            <div style="max-width: 900px; margin: 0 auto; padding: 40px 20px;">
+                <div style="text-align: center; margin-bottom: 40px;">
+                    <h2 style="font-size: 2rem; color: #2C5F8D; margin-bottom: 20px;">담임목사님 인사말</h2>
                 </div>
-                <div class="about-text">
-                    <div class="about-item">
-                        <h3>우리의 사명</h3>
-                        <p>엘림교회는 하나님의 말씀을 통해 사람들을 섬기고, 예수 그리스도의 사랑을 전하며, 영적인 성장을 돕는 것을 사명으로 삼고 있습니다. 우리는 함께 모여 예배하고, 서로를 섬기며, 지역사회와 세상에 하나님의 사랑을 전하는 공동체입니다.</p>
-                    </div>
-                    <div class="about-item">
-                        <h3>우리의 가치</h3>
-                        <ul class="value-list">
-                            <li><span class="value-icon">✝</span> 하나님 중심의 예배와 기도</li>
-                            <li><span class="value-icon">✝</span> 말씀을 통한 영적 성장</li>
-                            <li><span class="value-icon">✝</span> 서로를 사랑하고 섬기는 공동체</li>
-                            <li><span class="value-icon">✝</span> 세상 속에서 빛과 소금의 역할</li>
-                        </ul>
-                    </div>
+                <div style="background: #f8f9fa; padding: 40px; border-radius: 10px; line-height: 1.8; font-size: 1.1rem; color: #333;">
+                    <p style="margin-bottom: 20px; text-align: justify;">
+                        엘림교회에 오신 것을 진심으로 환영합니다.
+                    </p>
+                    <p style="margin-bottom: 20px; text-align: justify;">
+                        엘림교회는 하나님의 말씀을 따라가며, 신앙공동체를 세워가고 있습니다. 우리는 함께 모여 예배하고, 서로를 사랑하며, 하나님의 사랑을 세상에 전하는 공동체입니다.
+                    </p>
+                    <p style="margin-bottom: 20px; text-align: justify;">
+                        하나님의 말씀을 통해 영적으로 성장하고, 예수 그리스도의 사랑을 나누며, 지역사회와 세상에 복음을 전하는 것이 우리의 사명입니다.
+                    </p>
+                    <p style="margin-bottom: 20px; text-align: justify;">
+                        엘림교회는 하나님 중심의 예배와 기도, 말씀을 통한 영적 성장, 서로를 사랑하고 섬기는 공동체, 그리고 세상 속에서 빛과 소금의 역할을 감당하는 것을 가치로 삼고 있습니다.
+                    </p>
+                    <p style="margin-top: 30px; text-align: right; font-weight: 600; color: #2C5F8D;">
+                        엘림교회 담임목사
+                    </p>
                 </div>
             </div>
         </div>

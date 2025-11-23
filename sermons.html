@@ -11,6 +11,25 @@
         body {
             font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
         }
+        
+        .news-page-header {
+            background: linear-gradient(135deg, #2C5F8D 0%, #1E4263 100%);
+            color: white;
+            padding: 100px 0 60px;
+            margin-top: 70px;
+            text-align: center;
+        }
+        
+        .news-page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .news-page-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
@@ -50,14 +69,17 @@
         </nav>
     </header>
 
-    <!-- 설교영상 -->
-    <section id="sermons" class="section" style="margin-top: 70px;">
+    <!-- 설교영상 배너 -->
+    <section class="news-page-header">
         <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">설교영상</h2>
-                <div class="section-line"></div>
-                <p class="section-subtitle">하나님의 말씀을 함께 나눕니다</p>
-            </div>
+            <h1>설교영상</h1>
+            <p>하나님의 말씀을 함께 나눕니다</p>
+        </div>
+    </section>
+
+    <!-- 설교영상 -->
+    <section id="sermons" class="section">
+        <div class="container">
             
             <div class="sermon-layout">
                 <!-- 좌측: 최근 영상 -->
@@ -80,7 +102,7 @@
                     </a>
                     
                     <!-- 담임목사 인삿말 -->
-                    <a href="#" class="sermon-button sermon-greeting-button" onclick="alert('담임목사님 인삿말이 준비 중입니다.'); return false;">
+                    <a href="about.html" class="sermon-button sermon-greeting-button">
                         <div class="sermon-button-icon">👋</div>
                         <h4>담임목사 인삿말</h4>
                         <p>담임목사님의 따뜻한 인사말을<br>살펴보세요</p>
