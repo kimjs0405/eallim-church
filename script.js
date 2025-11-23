@@ -561,6 +561,7 @@ function viewPost(index) {
 // 주보광고 및 행사앨범 로드
 const STORAGE_KEY = 'elim-admin-data';
 
+// 주보광고 로드 (GitHub API만 사용, localStorage 폴백 제거)
 async function loadBulletins() {
     const container = document.getElementById('bulletinList');
     if (!container) return;
@@ -568,46 +569,38 @@ async function loadBulletins() {
     container.innerHTML = '<div class="loading-message"><p>주보를 불러오는 중...</p></div>';
     
     try {
-        // API 호출에 타임아웃 추가 (5초)
-        const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('API 호출 타임아웃')), 5000)
-        );
-        
-        const result = await Promise.race([
-            bulletinAPI.getBulletins(),
-            timeoutPromise
-        ]);
-        
-        let bulletins = result || [];
+        // GitHub API에서 주보 데이터 가져오기
+        const bulletins = await bulletinAPI.getBulletins();
         
         // API 데이터 형식 변환
+        let formattedBulletins = [];
         if (bulletins && bulletins.length > 0) {
-            bulletins = bulletins.map(b => ({
+            formattedBulletins = bulletins.map(b => ({
                 id: b.id,
-                title: b.title,
-                date: b.date,
-                content: b.content,
-                imageUrl: b.image_url || b.imageUrl
+                title: b.title || '',
+                date: b.date || '',
+                content: b.content || '',
+                imageUrl: b.image_url || b.imageUrl || ''
             }));
         }
         
-        // API에서 데이터가 없거나 빈 배열이면 localStorage 확인
-        if (!bulletins || bulletins.length === 0) {
-            // 폴백: localStorage 사용
-            const adminData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"bulletins":[]}');
-            bulletins = adminData.bulletins || [];
-        }
-        
-        if (bulletins.length === 0) {
+        if (formattedBulletins.length === 0) {
             container.innerHTML = '<div class="loading-message"><p>등록된 주보가 없습니다.</p></div>';
+            window.bulletinsData = [];
             return;
         }
         
         // 날짜순 정렬 (최신순)
-        const sortedBulletins = [...bulletins].sort((a, b) => {
-            const dateA = new Date(a.date.replace(/\./g, '-'));
-            const dateB = new Date(b.date.replace(/\./g, '-'));
-            return dateB - dateA;
+        const sortedBulletins = [...formattedBulletins].sort((a, b) => {
+            try {
+                // 날짜 형식 변환 (YYYY.MM.DD -> Date 객체)
+                const dateA = a.date ? new Date(a.date.replace(/\./g, '-')) : new Date(0);
+                const dateB = b.date ? new Date(b.date.replace(/\./g, '-')) : new Date(0);
+                return dateB - dateA;
+            } catch (e) {
+                // 날짜 파싱 실패 시 ID로 정렬
+                return (b.id || 0) - (a.id || 0);
+            }
         });
         
         // 최신 5개만 표시
@@ -615,11 +608,12 @@ async function loadBulletins() {
         
         let html = '';
         displayBulletins.forEach((bulletin, index) => {
+            const escapedData = JSON.stringify(sortedBulletins).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
             html += `
                 <div class="board-list-item">
-                    <a href="javascript:void(0)" onclick="showBulletinDetail(${index}, ${JSON.stringify(sortedBulletins).replace(/"/g, '&quot;')})">
-                        <span class="date">${bulletin.date}</span>
-                        <span class="text">${bulletin.title}</span>
+                    <a href="javascript:void(0)" onclick="showBulletinDetail(${index}, ${escapedData})">
+                        <span class="date">${bulletin.date || ''}</span>
+                        <span class="text">${bulletin.title || '제목 없음'}</span>
                     </a>
                 </div>
             `;
@@ -628,38 +622,9 @@ async function loadBulletins() {
         container.innerHTML = html;
         window.bulletinsData = sortedBulletins; // 전역 변수로 저장
     } catch (error) {
-        console.error('API 로드 실패, localStorage로 폴백:', error);
-        // 폴백: localStorage 사용
-        const adminData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"bulletins":[]}');
-        const bulletins = adminData.bulletins || [];
-        
-        if (bulletins.length === 0) {
-            container.innerHTML = '<div class="loading-message"><p>등록된 주보가 없습니다.</p></div>';
-            return;
-        }
-        
-        const sortedBulletins = [...bulletins].sort((a, b) => {
-            const dateA = new Date(a.date.replace(/\./g, '-'));
-            const dateB = new Date(b.date.replace(/\./g, '-'));
-            return dateB - dateA;
-        });
-        
-        const displayBulletins = sortedBulletins.slice(0, 5);
-        
-        let html = '';
-        displayBulletins.forEach((bulletin, index) => {
-            html += `
-                <div class="board-list-item">
-                    <a href="javascript:void(0)" onclick="showBulletinDetail(${index})">
-                        <span class="date">${bulletin.date}</span>
-                        <span class="text">${bulletin.title}</span>
-                    </a>
-                </div>
-            `;
-        });
-        
-        container.innerHTML = html;
-        window.bulletinsData = sortedBulletins;
+        console.error('주보 로드 실패:', error);
+        container.innerHTML = '<div class="loading-message"><p>주보를 불러오는 중 오류가 발생했습니다.</p></div>';
+        window.bulletinsData = [];
     }
 }
 
@@ -668,26 +633,47 @@ async function refreshBulletins() {
     await loadBulletins();
 }
 
-function showBulletinDetail(index, bulletinsData = null) {
-    const bulletins = bulletinsData || window.bulletinsData || [];
+// 주보 상세 보기 (GitHub API 데이터만 사용)
+async function showBulletinDetail(index, bulletinsData = null) {
+    let bulletins = bulletinsData || window.bulletinsData || [];
     
-    if (bulletins.length === 0) {
-        // 폴백: localStorage 사용
-        const adminData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"bulletins":[]}');
-        const localBulletins = adminData.bulletins || [];
-        const sortedBulletins = [...localBulletins].sort((a, b) => {
-            const dateA = new Date(a.date.replace(/\./g, '-'));
-            const dateB = new Date(b.date.replace(/\./g, '-'));
-            return dateB - dateA;
-        });
-        const bulletin = sortedBulletins[index];
-        if (!bulletin) return;
-        displayBulletinModal(bulletin);
-        return;
+    // 데이터가 없으면 API에서 다시 가져오기
+    if (!bulletins || bulletins.length === 0) {
+        try {
+            bulletins = await bulletinAPI.getBulletins();
+            if (bulletins && bulletins.length > 0) {
+                bulletins = bulletins.map(b => ({
+                    id: b.id,
+                    title: b.title || '',
+                    date: b.date || '',
+                    content: b.content || '',
+                    imageUrl: b.image_url || b.imageUrl || ''
+                }));
+                // 날짜순 정렬
+                bulletins.sort((a, b) => {
+                    try {
+                        const dateA = a.date ? new Date(a.date.replace(/\./g, '-')) : new Date(0);
+                        const dateB = b.date ? new Date(b.date.replace(/\./g, '-')) : new Date(0);
+                        return dateB - dateA;
+                    } catch (e) {
+                        return (b.id || 0) - (a.id || 0);
+                    }
+                });
+                window.bulletinsData = bulletins;
+            }
+        } catch (error) {
+            console.error('주보 상세 로드 실패:', error);
+            alert('주보를 불러올 수 없습니다.');
+            return;
+        }
     }
     
     const bulletin = bulletins[index];
-    if (!bulletin) return;
+    if (!bulletin) {
+        alert('주보를 찾을 수 없습니다.');
+        return;
+    }
+    
     displayBulletinModal(bulletin);
 }
 
