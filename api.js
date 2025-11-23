@@ -63,11 +63,11 @@ const boardAPI = {
   },
   
   // 게시글 생성
-  async createPost(title, content) {
+  async createPost(title, content, author) {
     const result = await apiCall('/posts', 'POST', {
       title,
       content,
-      author: '관리자',
+      author: author || '게시자',
       date: Date.now(),
     });
     // 에러가 있으면 그대로 반환
@@ -78,10 +78,11 @@ const boardAPI = {
   },
   
   // 게시글 수정
-  async updatePost(postId, title, content) {
+  async updatePost(postId, title, content, author) {
     return await apiCall(`/posts/${postId}`, 'PUT', {
       title,
       content,
+      author: author,
     });
   },
   

@@ -294,7 +294,7 @@ async function loadBoardPosts() {
             id: post.id,
             title: post.title,
             content: post.content,
-            author: post.author || '관리자',
+            author: post.author || '게시자',
             date: post.created_at ? new Date(post.created_at).getTime() : (post.date || Date.now())
         }));
     } catch (error) {
@@ -342,7 +342,7 @@ async function renderBoardPosts() {
                             <div class="board-post-title">${post.title}</div>
                             <div class="board-post-meta">
                                 <span>📅 ${postDate}</span>
-                                <span>👤 ${post.author || '관리자'}</span>
+                                <span>👤 ${post.author || '게시자'}</span>
                             </div>
                         </div>
                     </div>
@@ -399,6 +399,7 @@ async function openWriteModal(postIndex = null) {
     if (!modal || !modal.style) return;
     
     const titleEl = document.getElementById('modalTitle');
+    const authorInput = document.getElementById('postAuthor');
     const titleInput = document.getElementById('postTitle');
     const contentInput = document.getElementById('postContent');
     
@@ -417,11 +418,13 @@ async function openWriteModal(postIndex = null) {
         
         const post = allPosts[postIndex];
         if (titleEl) titleEl.textContent = '글 수정';
+        if (authorInput) authorInput.value = post.author || '';
         if (titleInput) titleInput.value = post.title || '';
         if (contentInput) contentInput.value = post.content || '';
     } else {
         // 새 글 작성 - 모든 사용자 가능
         if (titleEl) titleEl.textContent = '글쓰기';
+        if (authorInput) authorInput.value = '';
         if (titleInput) titleInput.value = '';
         if (contentInput) contentInput.value = '';
     }
@@ -433,11 +436,24 @@ function closeWriteModal() {
     const modal = document.getElementById('postModal');
     if (modal) modal.style.display = 'none';
     editingPostIndex = null;
+    // 입력 필드 초기화
+    const authorInput = document.getElementById('postAuthor');
+    const titleInput = document.getElementById('postTitle');
+    const contentInput = document.getElementById('postContent');
+    if (authorInput) authorInput.value = '';
+    if (titleInput) titleInput.value = '';
+    if (contentInput) contentInput.value = '';
 }
 
 async function savePost() {
+    const author = document.getElementById('postAuthor').value.trim();
     const title = document.getElementById('postTitle').value.trim();
     const content = document.getElementById('postContent').value.trim();
+    
+    if (!author) {
+        alert('작성자 이름을 입력해주세요.');
+        return;
+    }
     
     if (!title || !content) {
         alert('제목과 내용을 입력해주세요.');
@@ -448,7 +464,7 @@ async function savePost() {
         if (editingPostIndex !== null) {
             // 수정
             const post = allPosts[editingPostIndex];
-            const result = await boardAPI.updatePost(post.id, title, content);
+            const result = await boardAPI.updatePost(post.id, title, content, author);
             if (result && result.error) {
                 alert('오류: ' + result.error);
                 return;
@@ -456,7 +472,7 @@ async function savePost() {
             alert('글이 수정되었습니다.');
         } else {
             // 새 글
-            const result = await boardAPI.createPost(title, content);
+            const result = await boardAPI.createPost(title, content, author);
             if (result && result.error) {
                 alert('오류: ' + result.error + '\n\nGitHub 설정을 확인하세요:\n- GITHUB_TOKEN\n- GITHUB_REPO\n- GITHUB_BRANCH');
                 console.error('게시글 생성 실패:', result);
@@ -480,12 +496,13 @@ async function savePost() {
         if (editingPostIndex !== null) {
             posts[editingPostIndex].title = title;
             posts[editingPostIndex].content = content;
+            posts[editingPostIndex].author = author;
         } else {
             posts.push({
                 id: Date.now(),
                 title: title,
                 content: content,
-                author: '게시자',
+                author: author || '게시자',
                 date: Date.now()
             });
         }
@@ -544,7 +561,7 @@ function viewPost(index) {
             <h2 class="board-post-detail-title">${post.title}</h2>
             <div class="board-post-meta" style="margin-bottom: 20px;">
                 <span>📅 ${postDate}</span>
-                <span>👤 ${post.author || '관리자'}</span>
+                <span>👤 ${post.author || '게시자'}</span>
             </div>
             <div class="board-post-detail-content">${post.content.replace(/\n/g, '<br>')}</div>
             <div class="board-post-detail-actions">
