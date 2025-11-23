@@ -17,22 +17,35 @@
     <!-- 헤더 -->
     <header id="header" class="header">
         <nav class="nav container">
-            <div class="nav-brand"><a href="index.html" style="text-decoration: none; color: inherit;">엘림교회</a></div>
+            <div class="nav-brand">
+                <a href="index.html">
+                    <img src="logo.png" alt="엘림교회 로고">
+                    <span>엘림교회</span>
+                </a>
+            </div>
             <ul class="nav-menu" id="nav-menu">
                 <li class="nav-item"><a href="index.html" class="nav-link">홈</a></li>
                 <li class="nav-item"><a href="about.html" class="nav-link">교회소개</a></li>
-                <li class="nav-item"><a href="index.html#worship" class="nav-link">예배안내</a></li>
-                <li class="nav-item"><a href="index.html#programs" class="nav-link">교회활동</a></li>
-                <li class="nav-item"><a href="index.html#vision" class="nav-link">비전</a></li>
-                <li class="nav-item"><a href="index.html#news" class="nav-link">공지사항</a></li>
+                <li class="nav-item"><a href="news.html" class="nav-link">공지사항</a></li>
                 <li class="nav-item"><a href="board.html" class="nav-link">게시판</a></li>
                 <li class="nav-item"><a href="sermons.html" class="nav-link">설교영상</a></li>
                 <li class="nav-item"><a href="contact.html" class="nav-link">오시는길</a></li>
             </ul>
-            <div class="nav-toggle" id="nav-toggle">
-                <span></span>
-                <span></span>
-                <span></span>
+            <div class="nav-right">
+                <a href="admin.html" class="login-btn">
+                    <span class="login-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </span>
+                    <span class="login-text">로그인</span>
+                </a>
+                <div class="nav-toggle" id="nav-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
             </div>
         </nav>
     </header>
@@ -68,47 +81,11 @@
         </div>
     </section>
 
+
     <!-- 푸터 -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-item">
-                    <h3>엘림교회</h3>
-                    <p>하나님의 말씀으로 세워지는 공동체</p>
-                </div>
-                <div class="footer-item">
-                    <h4>빠른 링크</h4>
-                    <ul>
-                        <li><a href="about.html">교회소개</a></li>
-                        <li><a href="index.html#worship">예배안내</a></li>
-                        <li><a href="index.html#programs">교회활동</a></li>
-                        <li><a href="index.html#vision">비전</a></li>
-                    </ul>
-                </div>
-                <div class="footer-item">
-                    <h4>이용안내</h4>
-                    <ul>
-                        <li><a href="contact.html">오시는길</a></li>
-                        <li><a href="board.html">게시판</a></li>
-                        <li><a href="sermons.html">설교영상</a></li>
-                        <li><a href="#">사역기관</a></li>
-                    </ul>
-                </div>
-                <div class="footer-item">
-                    <h4>연락처</h4>
-                    <ul class="footer-contact">
-                        <li>📞 02-866-4623</li>
-                        <li>📧 info@elimchurch.org</li>
-                        <li>📍 서울특별시 영등포구 여의도동</li>
-                        <li>⏰ 주일 오전 11시 예배</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 엘림교회. All rights reserved.</p>
-                <p>하나님의 영광을 따라가는 교회</p>
-            </div>
-        </div>
+    <footer style="text-align: center; padding: 20px; background: #f8f9fa; border-top: 1px solid #e0e0e0;">
+        <p style="margin: 5px 0; color: #666; font-size: 0.9rem;">예수교대한성결교회 엘림교회</p>
+        <p style="margin: 5px 0; color: #666; font-size: 0.9rem;">T. 02-886-4623</p>
     </footer>
 
     <script src="script.js"></script>

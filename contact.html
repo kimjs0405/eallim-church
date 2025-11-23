@@ -7,9 +7,17 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=26b45d2ab326534f6dde8f80bf90f15b&libraries=services"></script>
     <style>
         body {
             font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+        }
+        #map {
+            width: 100%;
+            height: 600px;
+            margin: 30px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
         }
     </style>
 </head>
@@ -17,22 +25,35 @@
     <!-- 헤더 -->
     <header id="header" class="header">
         <nav class="nav container">
-            <div class="nav-brand"><a href="index.html" style="text-decoration: none; color: inherit;">엘림교회</a></div>
+            <div class="nav-brand">
+                <a href="index.html">
+                    <img src="logo.png" alt="엘림교회 로고">
+                    <span>엘림교회</span>
+                </a>
+            </div>
             <ul class="nav-menu" id="nav-menu">
                 <li class="nav-item"><a href="index.html" class="nav-link">홈</a></li>
                 <li class="nav-item"><a href="about.html" class="nav-link">교회소개</a></li>
-                <li class="nav-item"><a href="index.html#worship" class="nav-link">예배안내</a></li>
-                <li class="nav-item"><a href="index.html#programs" class="nav-link">교회활동</a></li>
-                <li class="nav-item"><a href="index.html#vision" class="nav-link">비전</a></li>
-                <li class="nav-item"><a href="index.html#news" class="nav-link">공지사항</a></li>
+                <li class="nav-item"><a href="news.html" class="nav-link">공지사항</a></li>
                 <li class="nav-item"><a href="board.html" class="nav-link">게시판</a></li>
                 <li class="nav-item"><a href="sermons.html" class="nav-link">설교영상</a></li>
                 <li class="nav-item"><a href="contact.html" class="nav-link">오시는길</a></li>
             </ul>
-            <div class="nav-toggle" id="nav-toggle">
-                <span></span>
-                <span></span>
-                <span></span>
+            <div class="nav-right">
+                <a href="admin.html" class="login-btn">
+                    <span class="login-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </span>
+                    <span class="login-text">로그인</span>
+                </a>
+                <div class="nav-toggle" id="nav-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
             </div>
         </nav>
     </header>
@@ -45,111 +66,72 @@
                 <div class="section-line"></div>
                 <p class="section-subtitle">엘림교회로 오시는 방법을 안내해드립니다</p>
             </div>
-            <div class="contact-grid">
-                <div class="contact-info">
-                    <div class="info-card">
-                        <h3>교회 정보</h3>
-                        <div class="info-item">
-                            <span>📍</span>
-                            <div>
-                                <p class="info-label">주소</p>
-                                <p>서울특별시 영등포구 여의도동 123-456</p>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <span>📞</span>
-                            <div>
-                                <p class="info-label">전화</p>
-                                <p>02-866-4623</p>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <span>📧</span>
-                            <div>
-                                <p class="info-label">이메일</p>
-                                <p>info@elimchurch.org</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="info-card">
-                        <h3>대중교통 이용시</h3>
-                        <p>🚇 <strong>지하철:</strong> 5호선 여의도역 2번 출구 도보 5분</p>
-                        <p>🚌 <strong>버스:</strong> 60, 160, 262, 463</p>
-                        <p>🚗 <strong>주차:</strong> 지하 2층 주차장 이용 가능 (무료)</p>
-                    </div>
-                </div>
-                <div class="contact-form-container">
-                    <div class="form-card">
-                        <h3>문의하기</h3>
-                        <form id="contact-form">
-                            <div class="form-group">
-                                <label for="name">이름</label>
-                                <input type="text" id="name" name="name" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="email">이메일</label>
-                                <input type="email" id="email" name="email" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="phone">전화번호</label>
-                                <input type="tel" id="phone" name="phone">
-                            </div>
-                            <div class="form-group">
-                                <label for="message">문의내용</label>
-                                <textarea id="message" name="message" rows="4" required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">문의하기</button>
-                        </form>
-                    </div>
-                </div>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <p style="font-size: 1.1rem; color: #666; margin-bottom: 10px;">📍 서울특별시 관악구 신림로 122</p>
+                <p style="font-size: 1rem; color: #888;">📞 02-886-4623</p>
             </div>
+            <div id="map"></div>
         </div>
     </section>
 
+
     <!-- 푸터 -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-item">
-                    <h3>엘림교회</h3>
-                    <p>하나님의 말씀으로 세워지는 공동체</p>
-                </div>
-                <div class="footer-item">
-                    <h4>빠른 링크</h4>
-                    <ul>
-                        <li><a href="about.html">교회소개</a></li>
-                        <li><a href="index.html#worship">예배안내</a></li>
-                        <li><a href="index.html#programs">교회활동</a></li>
-                        <li><a href="index.html#vision">비전</a></li>
-                    </ul>
-                </div>
-                <div class="footer-item">
-                    <h4>이용안내</h4>
-                    <ul>
-                        <li><a href="contact.html">오시는길</a></li>
-                        <li><a href="board.html">게시판</a></li>
-                        <li><a href="sermons.html">설교영상</a></li>
-                        <li><a href="#">사역기관</a></li>
-                    </ul>
-                </div>
-                <div class="footer-item">
-                    <h4>연락처</h4>
-                    <ul class="footer-contact">
-                        <li>📞 02-866-4623</li>
-                        <li>📧 info@elimchurch.org</li>
-                        <li>📍 서울특별시 영등포구 여의도동</li>
-                        <li>⏰ 주일 오전 11시 예배</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 엘림교회. All rights reserved.</p>
-                <p>하나님의 영광을 따라가는 교회</p>
-            </div>
-        </div>
+    <footer style="text-align: center; padding: 20px; background: #f8f9fa; border-top: 1px solid #e0e0e0;">
+        <p style="margin: 5px 0; color: #666; font-size: 0.9rem;">예수교대한성결교회 엘림교회</p>
+        <p style="margin: 5px 0; color: #666; font-size: 0.9rem;">T. 02-886-4623</p>
     </footer>
 
     <script src="script.js"></script>
+    <script>
+        // 카카오지도 API가 로드될 때까지 대기
+        function initMap() {
+            if (typeof kakao === 'undefined' || !kakao.maps) {
+                setTimeout(initMap, 100);
+                return;
+            }
+
+            var mapContainer = document.getElementById('map');
+            var mapOption = {
+                center: new kakao.maps.LatLng(37.4845, 126.9295), // 초기 중심 좌표 (관악구 신림로 근처)
+                level: 3 // 지도의 확대 레벨
+            };
+
+            var map = new kakao.maps.Map(mapContainer, mapOption);
+
+            // 주소로 좌표를 검색합니다
+            var geocoder = new kakao.maps.services.Geocoder();
+            var address = '서울특별시 관악구 신림로 122';
+
+            geocoder.addressSearch(address, function(result, status) {
+                // 정상적으로 검색이 완료됐으면
+                if (status === kakao.maps.services.Status.OK) {
+                    var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+
+                    // 결과값으로 받은 위치를 마커로 표시합니다
+                    var marker = new kakao.maps.Marker({
+                        map: map,
+                        position: coords
+                    });
+
+                    // 인포윈도우로 장소에 대한 설명을 표시합니다
+                    var infowindow = new kakao.maps.InfoWindow({
+                        content: '<div style="width:150px;text-align:center;padding:6px 0;">엘림교회<br>서울특별시 관악구 신림로 122</div>'
+                    });
+                    infowindow.open(map, marker);
+
+                    // 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
+                    map.setCenter(coords);
+                } else {
+                    console.error('주소 검색 실패:', status);
+                }
+            });
+        }
+
+        // 페이지 로드 후 지도 초기화
+        window.addEventListener('load', function() {
+            initMap();
+        });
+    </script>
 </body>
 </html>
 

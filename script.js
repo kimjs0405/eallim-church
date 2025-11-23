@@ -264,7 +264,6 @@ async function updateAdminUI() {
     const adminLoginBtn = document.getElementById('adminLoginBtn');
     const adminMenuBtn = document.getElementById('adminMenuBtn');
     const adminLogoutBtn = document.getElementById('adminLogoutBtn');
-    const writePostBtn = document.getElementById('writePostBtn');
     
     if (adminLoginBtn && adminLoginBtn.style) {
         adminLoginBtn.style.display = isLoggedIn ? 'none' : 'inline-block';
@@ -274,9 +273,6 @@ async function updateAdminUI() {
     }
     if (adminLogoutBtn && adminLogoutBtn.style) {
         adminLogoutBtn.style.display = isLoggedIn ? 'inline-block' : 'none';
-    }
-    if (writePostBtn && writePostBtn.style) {
-        writePostBtn.style.display = isLoggedIn ? 'block' : 'none';
     }
     
     // 게시판 페이지에서만 renderBoardPosts 호출
@@ -397,7 +393,7 @@ function goToPage(page) {
 // 글쓰기 모달
 let editingPostIndex = null;
 
-function openWriteModal(postIndex = null) {
+async function openWriteModal(postIndex = null) {
     editingPostIndex = postIndex;
     const modal = document.getElementById('postModal');
     if (!modal || !modal.style) return;
@@ -407,12 +403,24 @@ function openWriteModal(postIndex = null) {
     const contentInput = document.getElementById('postContent');
     
     if (postIndex !== null) {
-        const posts = loadBoardPosts();
-        const post = posts[postIndex];
+        // 수정 모드 - 관리자만 가능
+        const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+        if (!isLoggedIn) {
+            alert('게시글 수정은 관리자만 가능합니다.');
+            return;
+        }
+        
+        if (!allPosts || allPosts.length === 0) {
+            allPosts = await loadBoardPosts();
+            allPosts = allPosts.sort((a, b) => b.date - a.date);
+        }
+        
+        const post = allPosts[postIndex];
         if (titleEl) titleEl.textContent = '글 수정';
-        if (titleInput) titleInput.value = post.title;
-        if (contentInput) contentInput.value = post.content;
+        if (titleInput) titleInput.value = post.title || '';
+        if (contentInput) contentInput.value = post.content || '';
     } else {
+        // 새 글 작성 - 모든 사용자 가능
         if (titleEl) titleEl.textContent = '글쓰기';
         if (titleInput) titleInput.value = '';
         if (contentInput) contentInput.value = '';
@@ -477,7 +485,7 @@ async function savePost() {
                 id: Date.now(),
                 title: title,
                 content: content,
-                author: '관리자',
+                author: '게시자',
                 date: Date.now()
             });
         }
@@ -498,6 +506,13 @@ async function editPost(index) {
 }
 
 async function deletePost(index) {
+    // 삭제는 관리자만 가능
+    const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+    if (!isLoggedIn) {
+        alert('게시글 삭제는 관리자만 가능합니다.');
+        return;
+    }
+    
     if (!confirm('정말 삭제하시겠습니까?')) return;
     
     try {
@@ -829,7 +844,20 @@ window.addEventListener('load', async () => {
     if (latestVideoContainer) {
         // admin.html에서 저장한 채널 ID 확인
         const adminData = JSON.parse(localStorage.getItem('elim-admin-data') || '{}');
-        const savedChannelId = localStorage.getItem('youtubeChannelId') || adminData.youtubeChannelId || 'UCqkvh5qCX3mmisUUz79O9Ng';
+        // GitHub에서 YouTube 채널 ID 로드
+        let savedChannelId = '';
+        try {
+            const settings = await settingsAPI.getSettings();
+            savedChannelId = settings.youtubeChannelId || '';
+        } catch (error) {
+            console.error('설정 로드 실패:', error);
+            // 폴백: localStorage 사용
+            savedChannelId = localStorage.getItem('youtubeChannelId') || '';
+        }
+        
+        if (!savedChannelId) {
+            savedChannelId = 'UCqkvh5qCX3mmisUUz79O9Ng'; // 기본값
+        }
         
         const channelIdInput = document.getElementById('youtube-channel-id');
         if (channelIdInput) {
@@ -1384,17 +1412,42 @@ if (addVideoBtn) {
     });
 }
 
-// 수동 영상 업데이트
-function updateManualVideos() {
-    const manualVideos = JSON.parse(localStorage.getItem('manualVideos') || '[]');
+// 수동 영상 업데이트 (GitHub에서 로드)
+async function updateManualVideos() {
+    if (!manualVideosContainer) return;
     
-    if (manualVideos.length === 0) {
-        manualVideosContainer.innerHTML = '<p style="color: #999; text-align: center;">추가된 영상이 없습니다.</p>';
-        return;
+    try {
+        // GitHub에서 영상 목록 로드
+        const videos = await videosAPI.getVideos();
+        const videoIds = videos.map(v => v.videoId || v.id).filter(id => id);
+        
+        if (videoIds.length === 0) {
+            // 폴백: localStorage 사용
+            const manualVideos = JSON.parse(localStorage.getItem('manualVideos') || '[]');
+            if (manualVideos.length === 0) {
+                manualVideosContainer.innerHTML = '<p style="color: #999; text-align: center;">추가된 영상이 없습니다.</p>';
+                return;
+            }
+            renderVideos(manualVideos);
+            return;
+        }
+        
+        renderVideos(videoIds);
+    } catch (error) {
+        console.error('영상 목록 로드 실패:', error);
+        // 폴백: localStorage 사용
+        const manualVideos = JSON.parse(localStorage.getItem('manualVideos') || '[]');
+        if (manualVideos.length === 0) {
+            manualVideosContainer.innerHTML = '<p style="color: #999; text-align: center;">추가된 영상이 없습니다.</p>';
+            return;
+        }
+        renderVideos(manualVideos);
     }
-    
+}
+
+function renderVideos(videoIds) {
     let html = '';
-    manualVideos.forEach(videoId => {
+    videoIds.forEach(videoId => {
         html += `
             <div class="sermons-grid-item">
                 <iframe 

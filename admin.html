@@ -446,12 +446,25 @@
         
         async function loadData() {
             // 공지사항 로드
-            const savedChannelId = localStorage.getItem('youtubeChannelId') || adminData.youtubeChannelId || 'UCqkvh5qCX3mmisUUz79O9Ng';
-            document.getElementById('youtubeChannelId').value = savedChannelId;
-            adminData.youtubeChannelId = savedChannelId;
-            saveData();
             renderNotices();
-            renderVideos();
+            
+            // YouTube 채널 설정 로드
+            try {
+                const settings = await settingsAPI.getSettings();
+                const channelId = settings.youtubeChannelId || '';
+                document.getElementById('youtubeChannelId').value = channelId;
+                adminData.youtubeChannelId = channelId;
+            } catch (error) {
+                console.error('설정 로드 실패:', error);
+                // 폴백: localStorage 사용
+                const savedChannelId = localStorage.getItem('youtubeChannelId') || adminData.youtubeChannelId || '';
+                document.getElementById('youtubeChannelId').value = savedChannelId;
+                adminData.youtubeChannelId = savedChannelId;
+            }
+            
+            // 영상 목록 로드
+            await loadVideos();
+            
             await loadAlbums();
             await loadBulletins();
             await loadNewsScrollItems();
@@ -546,31 +559,49 @@
             }
         }
         
-        function saveChannelId() {
+        async function saveChannelId() {
             const channelId = document.getElementById('youtubeChannelId').value.trim();
             if (!channelId) {
                 alert('채널 ID를 입력해주세요.');
                 return;
             }
             
-            adminData.youtubeChannelId = channelId;
-            saveData();
-            // sermons.html에서도 사용할 수 있도록 별도로 저장
-            localStorage.setItem('youtubeChannelId', channelId);
-            showStatus('YouTube 채널 ID가 저장되었습니다. 설교영상 페이지에서 자동으로 최신 영상이 표시됩니다.');
+            try {
+                await settingsAPI.updateSettings(channelId);
+                adminData.youtubeChannelId = channelId;
+                // sermons.html에서도 사용할 수 있도록 별도로 저장 (폴백용)
+                localStorage.setItem('youtubeChannelId', channelId);
+                showStatus('YouTube 채널 ID가 저장되었습니다. 설교영상 페이지에서 자동으로 최신 영상이 표시됩니다.');
+            } catch (error) {
+                console.error('채널 ID 저장 실패:', error);
+                // 폴백: localStorage 사용
+                adminData.youtubeChannelId = channelId;
+                saveData();
+                localStorage.setItem('youtubeChannelId', channelId);
+                showStatus('YouTube 채널 ID가 저장되었습니다. (로컬 저장)');
+            }
         }
         
-        function addVideoUrl() {
+        async function addVideoUrl() {
             const url = document.getElementById('videoUrl').value;
             if (!url) return;
             
             const videoId = extractVideoId(url);
             if (videoId) {
-                adminData.videos.push(videoId);
-                saveData();
-                renderVideos();
-                document.getElementById('videoUrl').value = '';
-                showStatus('영상이 추가되었습니다.');
+                try {
+                    await videosAPI.createVideo(videoId);
+                    document.getElementById('videoUrl').value = '';
+                    showStatus('영상이 추가되었습니다.');
+                    await loadVideos();
+                } catch (error) {
+                    console.error('영상 추가 실패:', error);
+                    // 폴백: localStorage 사용
+                    adminData.videos.push(videoId);
+                    saveData();
+                    renderVideos();
+                    document.getElementById('videoUrl').value = '';
+                    showStatus('영상이 추가되었습니다. (로컬 저장)');
+                }
             } else {
                 alert('올바른 YouTube URL을 입력하세요.');
             }
@@ -582,25 +613,66 @@
             return (match && match[2].length === 11) ? match[2] : null;
         }
         
+        async function loadVideos() {
+            try {
+                const videos = await videosAPI.getVideos();
+                adminData.videos = videos.map(v => v.videoId || v.id);
+                renderVideos();
+            } catch (error) {
+                console.error('영상 목록 로드 실패:', error);
+                // 폴백: localStorage 사용
+                const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+                adminData.videos = savedData.videos || [];
+                renderVideos();
+            }
+        }
+        
         function renderVideos() {
             const container = document.getElementById('videoList');
             container.innerHTML = '';
-            adminData.videos.forEach((id, index) => {
+            if (!adminData.videos || adminData.videos.length === 0) {
+                container.innerHTML = '<p style="color: #666;">등록된 영상이 없습니다.</p>';
+                return;
+            }
+            adminData.videos.forEach((videoId, index) => {
                 const div = document.createElement('div');
                 div.style.marginBottom = '10px';
+                div.style.padding = '10px';
+                div.style.border = '1px solid #ddd';
+                div.style.borderRadius = '5px';
                 div.innerHTML = `
-                    <span>Video ID: ${id}</span>
-                    <button onclick="deleteVideo(${index})" style="background: #dc3545; margin-left: 10px;">삭제</button>
+                    <span>Video ID: ${videoId}</span>
+                    <button onclick="deleteVideo('${videoId}')" style="background: #dc3545; margin-left: 10px; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">삭제</button>
                 `;
                 container.appendChild(div);
             });
         }
         
-        function deleteVideo(index) {
-            adminData.videos.splice(index, 1);
-            saveData();
-            renderVideos();
-            showStatus('영상이 삭제되었습니다.');
+        async function deleteVideo(videoId) {
+            if (!confirm('정말 삭제하시겠습니까?')) return;
+            
+            try {
+                // GitHub에서 영상 목록을 가져와서 해당 videoId를 가진 항목 찾기
+                const videos = await videosAPI.getVideos();
+                const video = videos.find(v => (v.videoId || v.id) === videoId);
+                if (video && video.id) {
+                    await videosAPI.deleteVideo(video.id);
+                    showStatus('영상이 삭제되었습니다.');
+                    await loadVideos();
+                } else {
+                    throw new Error('영상을 찾을 수 없습니다.');
+                }
+            } catch (error) {
+                console.error('영상 삭제 실패:', error);
+                // 폴백: localStorage 사용
+                const index = adminData.videos.indexOf(videoId);
+                if (index > -1) {
+                    adminData.videos.splice(index, 1);
+                    saveData();
+                    renderVideos();
+                    showStatus('영상이 삭제되었습니다. (로컬 저장)');
+                }
+            }
         }
         
         // 행사앨범 관리

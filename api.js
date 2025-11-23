@@ -185,3 +185,50 @@ const newsScrollAPI = {
   },
 };
 
+// 설정 API (YouTube 채널 ID 등)
+const settingsAPI = {
+  // 설정 조회
+  async getSettings() {
+    try {
+      const result = await apiCall('/settings', 'GET');
+      return result.settings || { youtubeChannelId: '' };
+    } catch (error) {
+      console.error('설정 API 호출 실패:', error);
+      return { youtubeChannelId: '' };
+    }
+  },
+  
+  // 설정 업데이트
+  async updateSettings(youtubeChannelId) {
+    return await apiCall('/settings', 'PUT', {
+      youtubeChannelId,
+    });
+  },
+};
+
+// 영상 API
+const videosAPI = {
+  // 영상 목록 조회
+  async getVideos() {
+    try {
+      const result = await apiCall('/videos', 'GET');
+      return result.videos || [];
+    } catch (error) {
+      console.error('영상 API 호출 실패:', error);
+      return [];
+    }
+  },
+  
+  // 영상 추가
+  async createVideo(videoId) {
+    return await apiCall('/videos', 'POST', {
+      videoId,
+    });
+  },
+  
+  // 영상 삭제
+  async deleteVideo(videoId) {
+    return await apiCall(`/videos/${videoId}`, 'DELETE');
+  },
+};
+

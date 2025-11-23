@@ -17,50 +17,50 @@
     <!-- 헤더 -->
     <header id="header" class="header">
         <nav class="nav container">
-            <div class="nav-brand"><a href="index.html" style="text-decoration: none; color: inherit;">엘림교회</a></div>
+            <div class="nav-brand">
+                <a href="index.html">
+                    <img src="logo.png" alt="엘림교회 로고">
+                    <span>엘림교회</span>
+                </a>
+            </div>
             <ul class="nav-menu" id="nav-menu">
                 <li class="nav-item"><a href="index.html" class="nav-link">홈</a></li>
                 <li class="nav-item"><a href="about.html" class="nav-link">교회소개</a></li>
-                <li class="nav-item"><a href="index.html#worship" class="nav-link">예배안내</a></li>
-                <li class="nav-item"><a href="index.html#programs" class="nav-link">교회활동</a></li>
-                <li class="nav-item"><a href="index.html#vision" class="nav-link">비전</a></li>
-                <li class="nav-item"><a href="index.html#news" class="nav-link">공지사항</a></li>
+                <li class="nav-item"><a href="news.html" class="nav-link">공지사항</a></li>
                 <li class="nav-item"><a href="board.html" class="nav-link">게시판</a></li>
                 <li class="nav-item"><a href="sermons.html" class="nav-link">설교영상</a></li>
                 <li class="nav-item"><a href="contact.html" class="nav-link">오시는길</a></li>
             </ul>
-            <div class="nav-toggle" id="nav-toggle">
-                <span></span>
-                <span></span>
-                <span></span>
+            <div class="nav-right">
+                <a href="admin.html" class="login-btn">
+                    <span class="login-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </span>
+                    <span class="login-text">로그인</span>
+                </a>
+                <div class="nav-toggle" id="nav-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
             </div>
         </nav>
     </header>
 
     <!-- 게시판 -->
-    <section id="board" class="section bg-light" style="margin-top: 70px;">
+    <section id="board" class="section" style="margin-top: 70px; background: #ffffff;">
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">게시판</h2>
-                <div class="section-line"></div>
+                <div class="section-line" style="background: #4A90C2;"></div>
                 <p class="section-subtitle">교회 소식과 자유롭게 소통하는 공간</p>
             </div>
             
-            <!-- 관리자 로그인 버튼 -->
+            <!-- 글쓰기 버튼 (모든 사용자) -->
             <div style="text-align: right; margin-bottom: 20px;">
-                <button id="adminLoginBtn" class="btn btn-secondary" onclick="openAdminLogin()" style="display: inline-block;">
-                    🔐 관리자 로그인
-                </button>
-                <button id="adminMenuBtn" class="btn btn-primary" onclick="showAdminMenu()" style="display: none;">
-                    ⚙️ 관리자 메뉴
-                </button>
-                <button id="adminLogoutBtn" class="btn btn-secondary" onclick="adminLogout()" style="display: none;">
-                    로그아웃
-                </button>
-            </div>
-            
-            <!-- 글쓰기 버튼 (관리자만) -->
-            <div id="writePostBtn" style="text-align: right; margin-bottom: 20px; display: none;">
                 <button class="btn btn-primary" onclick="openWriteModal()">✏️ 글쓰기</button>
             </div>
             
@@ -78,71 +78,24 @@
     
     <!-- 글쓰기/수정 모달 -->
     <div id="postModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close" onclick="closeWriteModal()">&times;</span>
-            <h2 id="modalTitle">글쓰기</h2>
-            <input type="text" id="postTitle" placeholder="제목" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
-            <textarea id="postContent" placeholder="내용을 입력하세요" style="width: 100%; min-height: 200px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit;"></textarea>
-            <div style="text-align: right; margin-top: 15px;">
-                <button class="btn btn-secondary" onclick="closeWriteModal()">취소</button>
-                <button class="btn btn-primary" onclick="savePost()">저장</button>
+        <div class="modal-content" style="border-radius: 0;">
+            <span class="close" onclick="closeWriteModal()" style="color: #64748b;">&times;</span>
+            <h2 id="modalTitle" style="color: #1e3a5f; margin-bottom: 20px;">글쓰기</h2>
+            <input type="text" id="postTitle" placeholder="제목" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 0; font-size: 1rem;">
+            <textarea id="postContent" placeholder="내용을 입력하세요" style="width: 100%; min-height: 200px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 0; font-family: inherit; font-size: 1rem;"></textarea>
+            <div style="text-align: right; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="closeWriteModal()" style="border-radius: 0; border: 1px solid #6b7280;">취소</button>
+                <button class="btn btn-primary" onclick="savePost()" style="border-radius: 0; border: 1px solid #4A90C2;">저장</button>
             </div>
         </div>
     </div>
     
-    <!-- 관리자 로그인 모달 -->
-    <div id="adminLoginModal" class="modal" style="display: none;">
-        <div class="modal-content" style="max-width: 400px;">
-            <span class="close" onclick="closeAdminLogin()">&times;</span>
-            <h2>관리자 로그인</h2>
-            <input type="text" id="adminId" placeholder="아이디" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
-            <input type="password" id="adminPw" placeholder="비밀번호" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
-            <button class="btn btn-primary" onclick="checkAdminLogin()" style="width: 100%;">로그인</button>
-            <p id="loginError" style="color: red; margin-top: 10px; display: none;">아이디 또는 비밀번호가 일치하지 않습니다.</p>
-        </div>
-    </div>
+
 
     <!-- 푸터 -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-item">
-                    <h3>엘림교회</h3>
-                    <p>하나님의 말씀으로 세워지는 공동체</p>
-                </div>
-                <div class="footer-item">
-                    <h4>빠른 링크</h4>
-                    <ul>
-                        <li><a href="about.html">교회소개</a></li>
-                        <li><a href="index.html#worship">예배안내</a></li>
-                        <li><a href="index.html#programs">교회활동</a></li>
-                        <li><a href="index.html#vision">비전</a></li>
-                    </ul>
-                </div>
-                <div class="footer-item">
-                    <h4>이용안내</h4>
-                    <ul>
-                        <li><a href="contact.html">오시는길</a></li>
-                        <li><a href="board.html">게시판</a></li>
-                        <li><a href="sermons.html">설교영상</a></li>
-                        <li><a href="#">사역기관</a></li>
-                    </ul>
-                </div>
-                <div class="footer-item">
-                    <h4>연락처</h4>
-                    <ul class="footer-contact">
-                        <li>📞 02-866-4623</li>
-                        <li>📧 info@elimchurch.org</li>
-                        <li>📍 서울특별시 영등포구 여의도동</li>
-                        <li>⏰ 주일 오전 11시 예배</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 엘림교회. All rights reserved.</p>
-                <p>하나님의 영광을 따라가는 교회</p>
-            </div>
-        </div>
+    <footer style="text-align: center; padding: 20px; background: #f8f9fa; border-top: 1px solid #e0e0e0;">
+        <p style="margin: 5px 0; color: #666; font-size: 0.9rem;">예수교대한성결교회 엘림교회</p>
+        <p style="margin: 5px 0; color: #666; font-size: 0.9rem;">T. 02-886-4623</p>
     </footer>
 
     <script src="api.js"></script>
