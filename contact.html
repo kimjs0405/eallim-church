@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
-    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=26b45d2ab326534f6dde8f80bf90f15b&libraries=services"></script>
     <style>
         body {
             font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
@@ -81,31 +80,42 @@
         <p style="margin: 5px 0; color: #666; font-size: 0.9rem;">T. 02-886-4623</p>
     </footer>
 
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=08e9ca12057f851c0a0429be9ee5f415&libraries=services"></script>
     <script src="script.js"></script>
     <script>
         // 카카오지도 API가 로드될 때까지 대기
         function initMap() {
             if (typeof kakao === 'undefined' || !kakao.maps) {
+                console.log('카카오지도 API 로딩 중...');
                 setTimeout(initMap, 100);
                 return;
             }
 
+            console.log('카카오지도 API 로드 완료');
+
             var mapContainer = document.getElementById('map');
+            if (!mapContainer) {
+                console.error('지도 컨테이너를 찾을 수 없습니다.');
+                return;
+            }
+
+            // 초기 중심 좌표 (관악구 신림로 근처)
             var mapOption = {
-                center: new kakao.maps.LatLng(37.4845, 126.9295), // 초기 중심 좌표 (관악구 신림로 근처)
-                level: 3 // 지도의 확대 레벨
+                center: new kakao.maps.LatLng(37.4845, 126.9295),
+                level: 3
             };
 
             var map = new kakao.maps.Map(mapContainer, mapOption);
+            console.log('지도 생성 완료');
 
             // 주소로 좌표를 검색합니다
             var geocoder = new kakao.maps.services.Geocoder();
             var address = '서울특별시 관악구 신림로 122';
 
             geocoder.addressSearch(address, function(result, status) {
-                // 정상적으로 검색이 완료됐으면
                 if (status === kakao.maps.services.Status.OK) {
                     var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                    console.log('주소 검색 성공:', coords);
 
                     // 결과값으로 받은 위치를 마커로 표시합니다
                     var marker = new kakao.maps.Marker({
@@ -123,14 +133,25 @@
                     map.setCenter(coords);
                 } else {
                     console.error('주소 검색 실패:', status);
+                    // 주소 검색 실패 시에도 기본 위치에 마커 표시
+                    var defaultCoords = new kakao.maps.LatLng(37.4845, 126.9295);
+                    var marker = new kakao.maps.Marker({
+                        map: map,
+                        position: defaultCoords
+                    });
+                    map.setCenter(defaultCoords);
                 }
             });
         }
 
-        // 페이지 로드 후 지도 초기화
-        window.addEventListener('load', function() {
-            initMap();
-        });
+        // DOM이 완전히 로드된 후 지도 초기화
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(initMap, 500);
+            });
+        } else {
+            setTimeout(initMap, 500);
+        }
     </script>
 </body>
 </html>
