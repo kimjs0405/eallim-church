@@ -1,20 +1,45 @@
-// 모바일 메뉴 토글
-const navToggle = document.getElementById('nav-toggle');
-const navMenu = document.getElementById('nav-menu');
-const navLinks = document.querySelectorAll('.nav-link');
+// 모바일 메뉴 토글 (DOM 로드 후 실행)
+function initMobileMenu() {
+    const navToggle = document.getElementById('nav-toggle');
+    const navMenu = document.getElementById('nav-menu');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    if (navToggle && navMenu) {
+        // 기존 이벤트 리스너 제거 후 재등록
+        const newToggle = navToggle.cloneNode(true);
+        navToggle.parentNode.replaceChild(newToggle, navToggle);
+        
+        newToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            navMenu.classList.toggle('active');
+            newToggle.classList.toggle('active');
+        });
+        
+        // 메뉴 링크 클릭 시 메뉴 닫기
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                newToggle.classList.remove('active');
+            });
+        });
+        
+        // 모달 외부 클릭 시 메뉴 닫기
+        document.addEventListener('click', (e) => {
+            if (!navMenu.contains(e.target) && !newToggle.contains(e.target)) {
+                navMenu.classList.remove('active');
+                newToggle.classList.remove('active');
+            }
+        });
+    }
+}
 
-navToggle.addEventListener('click', () => {
-    navMenu.classList.toggle('active');
-    navToggle.classList.toggle('active');
-});
-
-// 메뉴 링크 클릭 시 메뉴 닫기
-navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-        navMenu.classList.remove('active');
-        navToggle.classList.remove('active');
-    });
-});
+// DOM 로드 시 실행
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMobileMenu);
+} else {
+    initMobileMenu();
+}
 
 // 헤더 스크롤 효과
 const header = document.getElementById('header');
@@ -285,11 +310,11 @@ function showAdminMenu() {
     window.open('admin.html', '_blank');
 }
 
-// 게시글 로드 (API 우선, 폴백: localStorage)
+// 게시글 로드 (GitHub API만 사용)
 async function loadBoardPosts() {
     try {
         const posts = await boardAPI.getPosts();
-        // API 데이터를 localStorage 형식으로 변환
+        // API 데이터 형식 변환
         return posts.map(post => ({
             id: post.id,
             title: post.title,
@@ -298,14 +323,9 @@ async function loadBoardPosts() {
             date: post.created_at ? new Date(post.created_at).getTime() : (post.date || Date.now())
         }));
     } catch (error) {
-        console.log('API 로드 실패, localStorage로 폴백:', error);
-        // 폴백: localStorage 사용
-        return JSON.parse(localStorage.getItem(BOARD_STORAGE_KEY) || '[]');
+        console.error('게시글 로드 실패:', error);
+        return [];
     }
-}
-
-function saveBoardPosts(posts) {
-    localStorage.setItem(BOARD_STORAGE_KEY, JSON.stringify(posts));
 }
 
 // 게시글 렌더링
@@ -488,29 +508,8 @@ async function savePost() {
         closeWriteModal();
         await renderBoardPosts();
     } catch (error) {
-        console.error('API 저장 실패:', error);
-        alert('게시글 저장에 실패했습니다: ' + (error.message || error) + '\n\n로컬 저장소에만 저장됩니다.');
-        // 폴백: localStorage 사용
-        const posts = await loadBoardPosts();
-        
-        if (editingPostIndex !== null) {
-            posts[editingPostIndex].title = title;
-            posts[editingPostIndex].content = content;
-            posts[editingPostIndex].author = author;
-        } else {
-            posts.push({
-                id: Date.now(),
-                title: title,
-                content: content,
-                author: author || '게시자',
-                date: Date.now()
-            });
-        }
-        
-        saveBoardPosts(posts);
-        closeWriteModal();
-        await renderBoardPosts();
-        alert(editingPostIndex !== null ? '글이 수정되었습니다. (로컬 저장소에만 저장됨)' : '글이 등록되었습니다. (로컬 저장소에만 저장됨)');
+        console.error('게시글 저장 실패:', error);
+        alert('게시글 저장에 실패했습니다: ' + (error.message || error) + '\n\nGitHub 설정을 확인하세요:\n- GITHUB_TOKEN\n- GITHUB_REPO\n- GITHUB_BRANCH');
     }
 }
 
@@ -538,12 +537,8 @@ async function deletePost(index) {
         alert('글이 삭제되었습니다.');
         await renderBoardPosts();
     } catch (error) {
-        console.log('API 삭제 실패, localStorage로 폴백:', error);
-        // 폴백: localStorage 사용
-        allPosts.splice(index, 1);
-        saveBoardPosts(allPosts);
-        await renderBoardPosts();
-        alert('글이 삭제되었습니다.');
+        console.error('게시글 삭제 실패:', error);
+        alert('게시글 삭제에 실패했습니다: ' + (error.message || error));
     }
 }
 
@@ -753,11 +748,7 @@ async function loadAlbums() {
             }));
         }
         
-        if (albums.length === 0) {
-            // 폴백: localStorage 사용
-            const adminData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"albums":[]}');
-            albums = adminData.albums || [];
-        }
+        // GitHub API만 사용, localStorage 폴백 제거
         
         if (albums.length === 0) {
             container.innerHTML = '<div class="loading-message"><p>등록된 사진이 없습니다.</p></div>';
@@ -781,30 +772,8 @@ async function loadAlbums() {
         
         container.innerHTML = html;
     } catch (error) {
-        console.log('API 로드 실패, localStorage로 폴백:', error);
-        // 폴백: localStorage 사용
-        const adminData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"albums":[]}');
-        const albums = adminData.albums || [];
-        
-        if (albums.length === 0) {
-            container.innerHTML = '<div class="loading-message"><p>등록된 사진이 없습니다.</p></div>';
-            return;
-        }
-        
-        const displayAlbums = albums.slice(-6).reverse();
-        
-        let html = '';
-        displayAlbums.forEach(album => {
-            html += `
-                <div class="album-item">
-                    <div class="album-thumb" style="background-image: url('${album.imageUrl}'); background-size: cover; background-position: center;">
-                        <img src="${album.imageUrl}" alt="행사앨범" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.parentElement.innerHTML='<div class=\\'album-placeholder\\'>📷</div>'">
-                    </div>
-                </div>
-            `;
-        });
-        
-        container.innerHTML = html;
+        console.error('앨범 로드 실패:', error);
+        container.innerHTML = '<div class="loading-message"><p>앨범을 불러오는 중 오류가 발생했습니다.</p></div>';
     }
 }
 
@@ -915,12 +884,7 @@ async function loadNewsScrollItems() {
         const result = await newsScrollAPI.getNewsScrollItems();
         let items = result || [];
         
-        // API에서 데이터가 없거나 빈 배열이면 localStorage 확인
-        if (!items || items.length === 0) {
-            const STORAGE_KEY = 'elim-admin-data';
-            const adminData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"newsScrollItems":[]}');
-            items = adminData.newsScrollItems || [];
-        }
+        // GitHub API만 사용, localStorage 폴백 제거
         
         if (items.length === 0) {
             // 기본값 설정
@@ -947,33 +911,10 @@ async function loadNewsScrollItems() {
         }
     } catch (error) {
         console.error('교회소식 로드 실패:', error);
-        // 폴백: localStorage 사용
-        const STORAGE_KEY = 'elim-admin-data';
-        const adminData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"newsScrollItems":[]}');
-        const items = adminData.newsScrollItems || [];
-        
-        if (items.length === 0) {
-            container.innerHTML = `
-                <div class="news-scroll-item active">교회소식을 관리자 페이지에서 추가해주세요.</div>
-            `;
-            newsItems = container.querySelectorAll('.news-scroll-item');
-            return;
-        }
-        
-        container.innerHTML = '';
-        items.forEach((item, index) => {
-            const div = document.createElement('div');
-            div.className = 'news-scroll-item';
-            if (index === 0) div.classList.add('active');
-            div.textContent = item.text;
-            container.appendChild(div);
-        });
-        
+        container.innerHTML = `
+            <div class="news-scroll-item active">교회소식을 불러오는 중 오류가 발생했습니다.</div>
+        `;
         newsItems = container.querySelectorAll('.news-scroll-item');
-        
-        if (newsItems.length > 0) {
-            initNewsScroll();
-        }
     }
 }
 
@@ -1413,22 +1354,20 @@ if (addVideoBtn) {
             return;
         }
         
-        // 기존 수동 영상 불러오기
-        let manualVideos = JSON.parse(localStorage.getItem('manualVideos') || '[]');
-        
-        // 중복 확인
-        if (manualVideos.includes(videoId)) {
-            alert('이 영상은 이미 추가되어 있습니다.');
-            return;
+        // GitHub API를 통해 영상 추가
+        try {
+            const result = await videosAPI.createVideo(videoId);
+            if (result && result.error) {
+                alert('오류: ' + result.error);
+                return;
+            }
+            alert('영상이 추가되었습니다.');
+            updateManualVideos();
+            videoUrlInput.value = '';
+        } catch (error) {
+            console.error('영상 추가 실패:', error);
+            alert('영상 추가에 실패했습니다: ' + (error.message || error));
         }
-        
-        // 영상 추가
-        manualVideos.unshift(videoId);
-        localStorage.setItem('manualVideos', JSON.stringify(manualVideos));
-        
-        // UI 업데이트
-        updateManualVideos();
-        videoUrlInput.value = '';
     });
 }
 
@@ -1442,26 +1381,14 @@ async function updateManualVideos() {
         const videoIds = videos.map(v => v.videoId || v.id).filter(id => id);
         
         if (videoIds.length === 0) {
-            // 폴백: localStorage 사용
-            const manualVideos = JSON.parse(localStorage.getItem('manualVideos') || '[]');
-            if (manualVideos.length === 0) {
-                manualVideosContainer.innerHTML = '<p style="color: #999; text-align: center;">추가된 영상이 없습니다.</p>';
-                return;
-            }
-            renderVideos(manualVideos);
+            manualVideosContainer.innerHTML = '<p style="color: #999; text-align: center;">추가된 영상이 없습니다.</p>';
             return;
         }
         
         renderVideos(videoIds);
     } catch (error) {
         console.error('영상 목록 로드 실패:', error);
-        // 폴백: localStorage 사용
-        const manualVideos = JSON.parse(localStorage.getItem('manualVideos') || '[]');
-        if (manualVideos.length === 0) {
-            manualVideosContainer.innerHTML = '<p style="color: #999; text-align: center;">추가된 영상이 없습니다.</p>';
-            return;
-        }
-        renderVideos(manualVideos);
+        manualVideosContainer.innerHTML = '<p style="color: #999; text-align: center;">영상을 불러오는 중 오류가 발생했습니다.</p>';
     }
 }
 

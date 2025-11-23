@@ -647,17 +647,12 @@
             if (videoId) {
                 try {
                     await videosAPI.createVideo(videoId);
-                    document.getElementById('videoUrl').value = '';
-                    showStatus('영상이 추가되었습니다.');
+                document.getElementById('videoUrl').value = '';
+                showStatus('영상이 추가되었습니다.');
                     await loadVideos();
                 } catch (error) {
                     console.error('영상 추가 실패:', error);
-                    // 폴백: localStorage 사용
-                    adminData.videos.push(videoId);
-                    saveData();
-                    renderVideos();
-                    document.getElementById('videoUrl').value = '';
-                    showStatus('영상이 추가되었습니다. (로컬 저장)');
+                    alert('영상 추가에 실패했습니다: ' + (error.message || error));
                 }
             } else {
                 alert('올바른 YouTube URL을 입력하세요.');
@@ -677,9 +672,7 @@
                 renderVideos();
             } catch (error) {
                 console.error('영상 목록 로드 실패:', error);
-                // 폴백: localStorage 사용
-                const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-                adminData.videos = savedData.videos || [];
+                adminData.videos = [];
                 renderVideos();
             }
         }
@@ -714,21 +707,14 @@
                 const video = videos.find(v => (v.videoId || v.id) === videoId);
                 if (video && video.id) {
                     await videosAPI.deleteVideo(video.id);
-                    showStatus('영상이 삭제되었습니다.');
+            showStatus('영상이 삭제되었습니다.');
                     await loadVideos();
                 } else {
                     throw new Error('영상을 찾을 수 없습니다.');
                 }
             } catch (error) {
                 console.error('영상 삭제 실패:', error);
-                // 폴백: localStorage 사용
-                const index = adminData.videos.indexOf(videoId);
-                if (index > -1) {
-                    adminData.videos.splice(index, 1);
-                    saveData();
-                    renderVideos();
-                    showStatus('영상이 삭제되었습니다. (로컬 저장)');
-                }
+                alert('영상 삭제에 실패했습니다: ' + (error.message || error));
             }
         }
         
@@ -752,20 +738,8 @@
                     await loadAlbums();
                     document.getElementById('albumImageFile').value = '';
                 } catch (error) {
-                    console.log('API 저장 실패, localStorage로 폴백:', error);
-                    // 폴백: localStorage 사용
-                    if (!adminData.albums) {
-                        adminData.albums = [];
-                    }
-                    
-                    adminData.albums.push({
-                        id: Date.now(),
-                        imageUrl: base64Image
-                    });
-                    saveData();
-                    renderAlbums();
-                    document.getElementById('albumImageFile').value = '';
-                    showStatus('사진이 추가되었습니다.');
+                    console.error('앨범 추가 실패:', error);
+                    alert('사진 추가에 실패했습니다: ' + (error.message || error));
                 }
             };
             reader.readAsDataURL(file);
@@ -784,20 +758,8 @@
                 await loadAlbums();
                 document.getElementById('albumImageUrl').value = '';
             } catch (error) {
-                console.log('API 저장 실패, localStorage로 폴백:', error);
-                // 폴백: localStorage 사용
-                if (!adminData.albums) {
-                    adminData.albums = [];
-                }
-                
-                adminData.albums.push({
-                    id: Date.now(),
-                    imageUrl: url
-                });
-                saveData();
-                renderAlbums();
-                document.getElementById('albumImageUrl').value = '';
-                showStatus('사진이 추가되었습니다.');
+                console.error('앨범 추가 실패:', error);
+                alert('사진 추가에 실패했습니다: ' + (error.message || error));
             }
         }
         
@@ -809,11 +771,12 @@
                         id: a.id,
                         imageUrl: a.image_url
                     }));
-                    saveData();
+                } else {
+                    adminData.albums = [];
                 }
                 renderAlbums();
             } catch (error) {
-                console.log('API 로드 실패, localStorage 사용:', error);
+                console.error('앨범 로드 실패:', error);
                 renderAlbums();
             }
         }
@@ -857,11 +820,8 @@
                 renderAlbums();
                 showStatus('사진이 삭제되었습니다.');
             } catch (error) {
-                console.log('API 삭제 실패, localStorage로 폴백:', error);
-                adminData.albums.splice(index, 1);
-                saveData();
-                renderAlbums();
-                showStatus('사진이 삭제되었습니다.');
+                console.error('앨범 삭제 실패:', error);
+                alert('사진 삭제에 실패했습니다: ' + (error.message || error));
             }
         }
         
@@ -1007,32 +967,8 @@
                 await loadBulletins();
                 closeBulletinModal();
             } catch (error) {
-                console.log('API 저장 실패, localStorage로 폴백:', error);
-                // 폴백: localStorage 사용
-                if (!adminData.bulletins) {
-                    adminData.bulletins = [];
-                }
-                
-                if (editingBulletinIndex !== null) {
-                    adminData.bulletins[editingBulletinIndex].title = title;
-                    adminData.bulletins[editingBulletinIndex].date = date;
-                    adminData.bulletins[editingBulletinIndex].content = content;
-                    adminData.bulletins[editingBulletinIndex].imageUrl = finalImageUrl;
-                    showStatus('주보가 수정되었습니다.');
-                } else {
-                    adminData.bulletins.push({
-                        id: Date.now(),
-                        title: title,
-                        date: date,
-                        content: content,
-                        imageUrl: finalImageUrl
-                    });
-                    showStatus('주보가 추가되었습니다.');
-                }
-                
-                saveData();
-                renderBulletins();
-                closeBulletinModal();
+                console.error('주보 저장 실패:', error);
+                alert('주보 저장에 실패했습니다: ' + (error.message || error));
             }
         }
         
@@ -1050,25 +986,13 @@
                     }));
                     saveData();
                 } else {
-                    // API가 빈 배열을 반환한 경우, localStorage 확인
-                    const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-                    if (savedData.bulletins && savedData.bulletins.length > 0) {
-                        adminData.bulletins = savedData.bulletins;
-                        console.log('API에서 데이터가 없어 localStorage 사용');
-                    } else if (!adminData.bulletins) {
+                    // API가 빈 배열을 반환한 경우
                         adminData.bulletins = [];
-                    }
                 }
                 renderBulletins();
             } catch (error) {
-                console.error('API 로드 실패, localStorage 사용:', error);
-                // API 실패 시 localStorage에서 불러오기
-                const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-                if (savedData.bulletins && savedData.bulletins.length > 0) {
-                    adminData.bulletins = savedData.bulletins;
-                } else if (!adminData.bulletins) {
+                console.error('주보 로드 실패:', error);
                     adminData.bulletins = [];
-                }
                 renderBulletins();
             }
         }
@@ -1127,11 +1051,8 @@
                 renderBulletins();
                 showStatus('주보가 삭제되었습니다.');
             } catch (error) {
-                console.log('API 삭제 실패, localStorage로 폴백:', error);
-                adminData.bulletins.splice(index, 1);
-                saveData();
-                renderBulletins();
-                showStatus('주보가 삭제되었습니다.');
+                console.error('주보 삭제 실패:', error);
+                alert('주보 삭제에 실패했습니다: ' + (error.message || error));
             }
         }
         
@@ -1480,26 +1401,8 @@
                 renderNewsScrollItems();
                 closeNewsScrollModal();
             } catch (error) {
-                console.log('API 저장 실패, localStorage로 폴백:', error);
-                // 폴백: localStorage 사용
-                if (!adminData.newsScrollItems) {
-                    adminData.newsScrollItems = [];
-                }
-                
-                if (editingNewsScrollIndex !== null) {
-                    adminData.newsScrollItems[editingNewsScrollIndex].text = text;
-                    showStatus('소식이 수정되었습니다. (로컬 저장소에만 저장됨)');
-                } else {
-                    adminData.newsScrollItems.push({
-                        id: Date.now(),
-                        text: text
-                    });
-                    showStatus('소식이 추가되었습니다. (로컬 저장소에만 저장됨)');
-                }
-                
-                saveData();
-                renderNewsScrollItems();
-                closeNewsScrollModal();
+                console.error('교회소식 저장 실패:', error);
+                alert('교회소식 저장에 실패했습니다: ' + (error.message || error));
             }
         }
         
@@ -1540,11 +1443,8 @@
                 renderNewsScrollItems();
                 showStatus('소식이 삭제되었습니다.');
             } catch (error) {
-                console.log('API 삭제 실패, localStorage로 폴백:', error);
-                adminData.newsScrollItems.splice(index, 1);
-                saveData();
-                renderNewsScrollItems();
-                showStatus('소식이 삭제되었습니다.');
+                console.error('교회소식 삭제 실패:', error);
+                alert('교회소식 삭제에 실패했습니다: ' + (error.message || error));
             }
         }
         
@@ -1558,22 +1458,12 @@
                     }));
                     saveData();
                 } else {
-                    // API가 빈 배열을 반환한 경우, localStorage 확인
-                    const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-                    if (savedData.newsScrollItems && savedData.newsScrollItems.length > 0) {
-                        adminData.newsScrollItems = savedData.newsScrollItems;
-                    } else if (!adminData.newsScrollItems) {
-                        adminData.newsScrollItems = [];
-                    }
-                }
-            } catch (error) {
-                console.error('API 로드 실패, localStorage 사용:', error);
-                const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-                if (savedData.newsScrollItems && savedData.newsScrollItems.length > 0) {
-                    adminData.newsScrollItems = savedData.newsScrollItems;
-                } else if (!adminData.newsScrollItems) {
+                    // API가 빈 배열을 반환한 경우
                     adminData.newsScrollItems = [];
                 }
+            } catch (error) {
+                console.error('교회소식 로드 실패:', error);
+                adminData.newsScrollItems = [];
             }
         }
         
