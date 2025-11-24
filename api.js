@@ -249,10 +249,8 @@ const settingsAPI = {
   },
   
   // 설정 업데이트
-  async updateSettings(youtubeChannelId) {
-    return await apiCall('/settings', 'PUT', {
-      youtubeChannelId,
-    });
+  async updateSettings(settings) {
+    return await apiCall('/settings', 'PUT', settings);
   },
 };
 
