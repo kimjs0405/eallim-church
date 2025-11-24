@@ -23,13 +23,42 @@ async function apiCall(endpoint, method = 'GET', data = null) {
 
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
-    const result = await response.json();
+    
+    // 응답 본문이 있는지 확인
+    const contentType = response.headers.get('content-type');
+    let result = {};
+    
+    if (contentType && contentType.includes('application/json')) {
+      const text = await response.text();
+      if (text && text.trim()) {
+        try {
+          result = JSON.parse(text);
+        } catch (parseError) {
+          console.error('JSON 파싱 오류:', parseError, 'Response text:', text);
+          return {
+            success: false,
+            error: `서버 응답 오류: ${response.status} ${response.statusText}`
+          };
+        }
+      }
+    } else {
+      // JSON이 아닌 경우
+      const text = await response.text();
+      if (text && text.trim()) {
+        try {
+          result = JSON.parse(text);
+        } catch {
+          result = { message: text };
+        }
+      }
+    }
     
     if (!response.ok) {
       // 에러 응답도 result에 포함하여 반환
       return {
         success: false,
-        error: result.error || `API 호출 실패 (${response.status})`,
+        error: result.error || result.message || `API 호출 실패 (${response.status})`,
+        status: response.status,
         ...result
       };
     }
